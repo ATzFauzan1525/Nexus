@@ -1,0 +1,64 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const http = require('http');
+const path = require('path');
+const { initSocket } = require('./socket');
+const { initDB } = require('./config/db');
+
+const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.io
+initSocket(server);
+
+// Middleware
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Static files for uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/pengguna', require('./routes/pengguna'));
+app.use('/api/surat', require('./routes/surat'));
+app.use('/api/disposisi', require('./routes/disposisi'));
+app.use('/api/status', require('./routes/status'));
+app.use('/api/notifikasi', require('./routes/notifikasi'));
+app.use('/api/laporan', require('./routes/laporan'));
+app.use('/api/public', require('./routes/public'));
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ message: 'Ukuran file terlalu besar. Maksimal 10MB.' });
+  }
+  res.status(500).json({ message: 'Terjadi kesalahan server' });
+});
+
+const PORT = process.env.PORT || 3001;
+
+const startServer = async () => {
+  try {
+    await initDB();
+    server.listen(PORT, () => {
+      console.log(`SiDis Backend running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+};
+
+startServer();
