@@ -33,7 +33,7 @@ export default function LacakWidget() {
       setResult(data);
 
       if (!socketRef.current) {
-        const newSocket = io(window.location.origin, {
+        const newSocket = io(import.meta.env.VITE_API_URL || window.location.origin, {
           reconnection: true,
           reconnectionAttempts: Infinity,
           reconnectionDelay: 1000,

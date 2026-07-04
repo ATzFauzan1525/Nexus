@@ -7,7 +7,7 @@ const userSockets = new Map();
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+      origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : (process.env.FRONTEND_URL || 'http://localhost:3000'),
       methods: ['GET', 'POST'],
       credentials: true,
     },

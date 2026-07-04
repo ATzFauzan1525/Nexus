@@ -11,7 +11,17 @@ const hostname = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 
 const apiApp = express();
-apiApp.use(cors({ credentials: true }));
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000'];
+apiApp.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 apiApp.use(express.json());
 apiApp.use(express.urlencoded({ extended: true }));
 
