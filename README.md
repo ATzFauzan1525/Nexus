@@ -66,6 +66,17 @@ Buka `http://localhost:3000` — API, Frontend (Vite dev server), dan Socket.io 
 > Schema menggunakan `CREATE TABLE IF NOT EXISTS` dan seed menggunakan `ON CONFLICT DO NOTHING`.
 > Database hanya perlu di-init sekali (`npm run db:init`), tidak perlu diulang saat restart.
 
+## Login
+
+Buka **https://sidis-nexus.vercel.app**
+
+| Role | Username | Password |
+|---|---|---|
+| Admin TU | `admin` | `admin123` |
+| Kepala Sekolah | `kepala` | `kepala123` |
+| Guru/Staf | `guru1` - `guru5` | `guru123` |
+| Wakasek | `wakasek1` - `wakasek4` | `wakasek123` |
+
 ## Seed Users (11 akun)
 
 | Username  | Password   | Role             | Bidang          | Nama           |
