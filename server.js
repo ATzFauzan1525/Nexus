@@ -7,7 +7,7 @@ const { initSocket } = require('./server/socket');
 const { initDB } = require('./server/config/db-init');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
+const hostname = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 
 const apiApp = express();
