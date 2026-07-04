@@ -42,7 +42,8 @@ export default function BuatDisposisiPage() {
 
   const handleDownloadFile = async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const res = await fetch(`/api/surat/${idSurat}/download`, {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/surat/${idSurat}/download`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return;

@@ -36,7 +36,8 @@ export default function DisposisiDetailPage() {
 
   const handleDownloadFile = async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const res = await fetch(`/api/surat/${disposisi.surat_id}/download`, {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/surat/${disposisi.surat_id}/download`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return;
