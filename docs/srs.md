@@ -28,7 +28,6 @@ Masalah utama yang diselesaikan sistem ini adalah: tidak adanya transparansi pos
 | WAKASEK | wakasek3 | wakasek123 | Wakasek SaranaPrasarana | SaranaPrasarana | |
 | WAKASEK | wakasek4 | wakasek123 | Wakasek Humas | Humas | |
 
-> **Catatan:** Tidak ada Wakasek untuk bidang Keuangan. Guru/Staf di bidang Keuangan berperan sebagai Bendahara.
 
 ---
 
