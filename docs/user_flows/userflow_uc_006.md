@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-006  
+Use Case ID: UC-006
+
 Use Case Name: Cari & Filter Surat (Pencarian Lanjutan)
 
-Status: Draft  
-Last Updated: 2026-07-10  
+Status: Active
+
+Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
@@ -66,7 +69,7 @@ Aktor membuka menu "Surat Masuk" di sidebar dan ingin mencari atau memfilter sur
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Pencarian Tidak Menemukan Hasil
 
@@ -126,7 +129,7 @@ Ketika aktor ingin mencari surat dalam rentang tanggal tertentu.
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Server Error Saat Pencarian
 
@@ -181,8 +184,8 @@ Ketika aktor memilih tanggal akhir yang lebih awal dari tanggal mulai pada filte
 
 |Page ID|Page Name|
 |---|---|
-|PAGE-009|Daftar Surat Masuk (`/surat`)|
-|PAGE-010|Detail Surat (`/surat/:id`)|
+|PAGE-003|Daftar Surat (`/surat`)|
+|PAGE-005|Detail Surat (`/surat/:id`)|
 
 ---
 
@@ -190,7 +193,7 @@ Ketika aktor memilih tanggal akhir yang lebih awal dari tanggal mulai pada filte
 
 ## 10.1 Data Read
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |surat_masuk|Mengambil data surat sesuai kata kunci, filter status, dan rentang tanggal|
 |disposisi|Digunakan untuk menentukan hak akses Guru/Staf dan Wakasek|
@@ -199,25 +202,25 @@ Ketika aktor memilih tanggal akhir yang lebih awal dari tanggal mulai pada filte
 
 ## 10.2 Data Created
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dibuat|
+|Tidak ada|Tidak ada data yang dibuat|
 
 ---
 
 ## 10.3 Data Updated
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang diupdate|
+|Tidak ada|Tidak ada data yang diupdate|
 
 ---
 
 ## 10.4 Data Deleted
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dihapus|
+|Tidak ada|Tidak ada data yang dihapus|
 
 ---
 
@@ -259,12 +262,12 @@ Ketika aktor memilih tanggal akhir yang lebih awal dari tanggal mulai pada filte
 
 |Page ID|
 |---|
-|PAGE-009|
-|PAGE-010|
+|PAGE-003|
+|PAGE-005|
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 |Version|Date|Author|Description|
 |---|---|---|---|

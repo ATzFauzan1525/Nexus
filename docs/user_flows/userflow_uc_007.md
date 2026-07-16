@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-007  
+Use Case ID: UC-007
+
 Use Case Name: Lihat Timeline Surat
 
-Status: Draft  
-Last Updated: 2026-07-10  
+Status: Active
+
+Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
@@ -69,7 +72,7 @@ Aktor mengklik baris surat pada tabel `/surat`, menekan tombol "Detail" pada dis
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Belum Ada Disposisi
 
@@ -116,7 +119,7 @@ Ketika Wakasek mencoba mengakses surat yang tidak berhubungan dengan bidangnya.
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Surat Tidak Ditemukan
 
@@ -191,7 +194,7 @@ Ketika file scan surat rusak atau tidak dapat diunduh.
 
 |Page ID|Page Name|
 |---|---|
-|PAGE-006|Detail Surat|
+|PAGE-005|Detail Surat (`/surat/:id`)|
 
 ---
 
@@ -199,7 +202,7 @@ Ketika file scan surat rusak atau tidak dapat diunduh.
 
 ## 10.1 Data Read
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |surat_masuk|Mengambil data header surat (nomor, tanggal, pengirim, perihal, status)|
 |status_surat|Mengambil seluruh riwayat perubahan status surat|
@@ -210,25 +213,25 @@ Ketika file scan surat rusak atau tidak dapat diunduh.
 
 ## 10.2 Data Created
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dibuat|
+|Tidak ada|Tidak ada data yang dibuat|
 
 ---
 
 ## 10.3 Data Updated
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang diupdate|
+|Tidak ada|Tidak ada data yang diupdate|
 
 ---
 
 ## 10.4 Data Deleted
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dihapus|
+|Tidak ada|Tidak ada data yang dihapus|
 
 ---
 
@@ -270,11 +273,11 @@ Ketika file scan surat rusak atau tidak dapat diunduh.
 
 |Page ID|
 |---|
-|PAGE-006|
+|PAGE-005|
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 |Version|Date|Author|Description|
 |---|---|---|---|

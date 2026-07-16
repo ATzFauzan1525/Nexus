@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-005  
+Use Case ID: UC-005
+
 Use Case Name: Terima & Lihat Notifikasi
 
-Status: Draft  
-Last Updated: 2026-07-10  
+Status: Active
+
+Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
@@ -65,7 +68,7 @@ Terjadi event di sistem yang memicu pembuatan notifikasi: surat masuk baru diinp
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Tidak Ada Notifikasi
 
@@ -111,7 +114,7 @@ Ketika notifikasi merujuk ke surat/disposisi yang sudah dihapus atau tidak dapat
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Koneksi WebSocket Terputus
 
@@ -171,8 +174,8 @@ Ketika banyak notifikasi masuk dalam waktu singkat (misal: disposisi massal).
 
 |Page ID|Page Name|
 |---|---|
-|PAGE-008|Notifikasi (`/notifications`)|
-|PAGE-TOP|Topbar (ikon lonceng + dropdown)|
+|PAGE-012|Notifikasi (`/notifications`)|
+|Topbar (ikon lonceng)|Topbar (ikon lonceng + dropdown)|
 
 ---
 
@@ -180,7 +183,7 @@ Ketika banyak notifikasi masuk dalam waktu singkat (misal: disposisi massal).
 
 ## 10.1 Data Read
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |notifikasi|Mengambil daftar notifikasi milik pengguna yang sedang login|
 
@@ -188,7 +191,7 @@ Ketika banyak notifikasi masuk dalam waktu singkat (misal: disposisi massal).
 
 ## 10.2 Data Created
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |notifikasi|Dibuat otomatis oleh sistem saat event relevan terjadi|
 
@@ -196,7 +199,7 @@ Ketika banyak notifikasi masuk dalam waktu singkat (misal: disposisi massal).
 
 ## 10.3 Data Updated
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |notifikasi|Memperbarui kolom `dibaca` dari `false` ke `true` saat notifikasi dibuka atau "Tandai Semua Dibaca"|
 
@@ -204,9 +207,9 @@ Ketika banyak notifikasi masuk dalam waktu singkat (misal: disposisi massal).
 
 ## 10.4 Data Deleted
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dihapus|
+|Tidak ada|Tidak ada data yang dihapus|
 
 ---
 
@@ -247,12 +250,12 @@ Ketika banyak notifikasi masuk dalam waktu singkat (misal: disposisi massal).
 
 |Page ID|
 |---|
-|PAGE-008|
-|PAGE-TOP|
+|PAGE-012|
+|Topbar (ikon lonceng)|
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 |Version|Date|Author|Description|
 |---|---|---|---|

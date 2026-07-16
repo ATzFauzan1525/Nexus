@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-004  
+Use Case ID: UC-004
+
 Use Case Name: Update Status Surat (Tindak Lanjut & Selesai)
 
-Status: Draft  
-Last Updated: 2026-07-10  
+Status: Active
+
+Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
@@ -72,7 +75,7 @@ Guru/Staf menerima notifikasi disposisi baru atau membuka halaman `Disposisi Say
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Catatan Tindak Lanjut Dikosongkan
 
@@ -102,21 +105,7 @@ Ketika Guru/Staf membatalkan proses perubahan status.
 
 ---
 
-## AF-003: Langsung ke Selesai (Melewati Diproses)
-
-### Condition
-
-Ketika Guru/Staf memilih status `Selesai` padahal status saat ini masih `Didisposisi` (tidak melalui `Diproses`).
-
-### Flow
-
-|Step|Actor Action|System Response|
-|---|---|---|
-|1|Guru/Staf menekan "Tandai Selesai" saat status `Didisposisi`|Sistem mengizinkan perubahan langsung ke `Selesai` karena tugas dapat diselesaikan tanpa tahap proses terpisah|
-
----
-
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Surat Sudah Berstatus Selesai
 
@@ -192,8 +181,8 @@ Ketika terjadi kesalahan server saat menyimpan perubahan.
 
 |Page ID|Page Name|
 |---|---|
-|PAGE-006|Disposisi Saya (`/disposisi/saya`)|
-|PAGE-007|Detail Disposisi (`/disposisi/:id`)|
+|PAGE-010|Disposisi Saya (`/disposisi/saya`)|
+|PAGE-009|Detail Disposisi (`/disposisi/:id`)|
 
 ---
 
@@ -201,7 +190,7 @@ Ketika terjadi kesalahan server saat menyimpan perubahan.
 
 ## 10.1 Data Read
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |disposisi|Mengambil data disposisi yang ditujukan kepada Guru/Staf|
 |surat_masuk|Mengambil data surat terkait disposisi|
@@ -210,7 +199,7 @@ Ketika terjadi kesalahan server saat menyimpan perubahan.
 
 ## 10.2 Data Created
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |status_surat|Membuat entri baru riwayat perubahan status|
 |notifikasi|Membuat notifikasi untuk Kepala Sekolah|
@@ -219,7 +208,7 @@ Ketika terjadi kesalahan server saat menyimpan perubahan.
 
 ## 10.3 Data Updated
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |surat_masuk|Memperbarui kolom `status` dengan status terbaru|
 
@@ -227,9 +216,9 @@ Ketika terjadi kesalahan server saat menyimpan perubahan.
 
 ## 10.4 Data Deleted
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dihapus|
+|Tidak ada|Tidak ada data yang dihapus|
 
 ---
 
@@ -273,12 +262,12 @@ Ketika terjadi kesalahan server saat menyimpan perubahan.
 
 |Page ID|
 |---|
-|PAGE-006|
-|PAGE-007|
+|PAGE-010|
+|PAGE-009|
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 |Version|Date|Author|Description|
 |---|---|---|---|
