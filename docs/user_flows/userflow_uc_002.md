@@ -3,25 +3,28 @@
 Document Version: v0.1
 
 Use Case ID: UC-002
+
 Use Case Name: Input Surat Masuk
 
-Status: Draft
+Status: Active
+
 Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
 
-## 1. OVERVIEW
+# 1. OVERVIEW
 
-### 1.1 Summary
+## 1.1 Summary
 
 Admin TU mengisi form input surat masuk dengan metadata lengkap (nomor surat, tanggal diterima, pengirim, perihal) dan mengunggah file scan (PDF/gambar) untuk dicatat ke dalam sistem sebagai surat baru berstatus `Diterima`.
 
-### 1.2 Goal
+## 1.2 Goal
 
 Admin TU ingin mencatat surat masuk secara digital agar dapat diproses lebih lanjut oleh Kepala Sekolah dan Guru/Staf terkait.
 
-### 1.3 Requirement References
+## 1.3 Requirement References
 
 | Requirement ID | Requirement Name |
 |---|---|
@@ -30,23 +33,23 @@ Admin TU ingin mencatat surat masuk secara digital agar dapat diproses lebih lan
 | BR-20 | File scan disimpan sebagai BYTEA di database Neon |
 | BR-21 | Nomor surat di-trim spasi sebelum disimpan |
 
-### 1.4 Primary Actor
+## 1.4 Primary Actor
 
 Admin TU
 
-### 1.5 Supporting Actors
+## 1.5 Supporting Actors
 
 Sistem Penyimpanan File (Neon BYTEA)
 
 ---
 
-## 2. TRIGGER
+# 2. TRIGGER
 
 Admin TU menekan menu "Surat Masuk" → "Input Surat Baru" di sidebar atau mengakses URL `/surat/tambah`.
 
 ---
 
-## 3. PRECONDITIONS
+# 3. PRECONDITIONS
 
 | ID | Condition |
 |---|---|
@@ -56,7 +59,7 @@ Admin TU menekan menu "Surat Masuk" → "Input Surat Baru" di sidebar atau menga
 
 ---
 
-## 4. MAIN FLOW
+# 4. MAIN FLOW
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -75,28 +78,28 @@ Admin TU menekan menu "Surat Masuk" → "Input Surat Baru" di sidebar atau menga
 
 ---
 
-## 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
-### AF-001: Field Wajib Tidak Diisi
+## AF-001: Field Wajib Tidak Diisi
 
-#### Condition
+### Condition
 
 Ketika Admin TU menekan tombol "Simpan Surat" tanpa mengisi nomor surat, pengirim, perihal, atau tanggal.
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
 | 1 | Admin TU mengklik tombol "Simpan Surat" | Sistem menampilkan pesan validasi merah di bawah field yang kosong |
 | 2 | | Request tidak dikirim ke server |
 
-### AF-002: Format atau Ukuran File Tidak Sesuai
+## AF-002: Format atau Ukuran File Tidak Sesuai
 
-#### Condition
+### Condition
 
 Ketika file yang diunggah bukan PDF/JPG/PNG atau melebihi 10 MB.
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -104,13 +107,13 @@ Ketika file yang diunggah bukan PDF/JPG/PNG atau melebihi 10 MB.
 | 2 | | Jika format tidak didukung: Sistem menampilkan pesan "Format file tidak didukung. Hanya PDF, JPG, dan PNG yang diizinkan." File tidak terunggah |
 | 3 | | Jika ukuran > 10MB: Sistem menampilkan pesan "Ukuran file terlalu besar. Maksimum 10 MB." |
 
-### AF-003: Nomor Surat Sudah Ada
+## AF-003: Nomor Surat Sudah Ada
 
-#### Condition
+### Condition
 
 Ketika nomor surat yang diinput sudah ada di database (unique constraint).
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -118,13 +121,13 @@ Ketika nomor surat yang diinput sudah ada di database (unique constraint).
 | 2 | | Sistem menampilkan pesan warning: "Nomor surat ini sudah pernah diinput. Pastikan tidak ada duplikasi." |
 | 3 | | Tombol simpan tetap aktif — Admin TU dapat menyimpan jika memang surat berbeda |
 
-### AF-004: Membatalkan Input
+## AF-004: Membatalkan Input
 
-#### Condition
+### Condition
 
 Ketika Admin TU menekan tombol "Batal" sebelum menyimpan.
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -133,15 +136,15 @@ Ketika Admin TU menekan tombol "Batal" sebelum menyimpan.
 
 ---
 
-## 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
-### EF-001: Koneksi Server Terputus Saat Submit
+## EF-001: Koneksi Server Terputus Saat Submit
 
-#### Condition
+### Condition
 
 Ketika koneksi internet atau server terputus saat Admin TU menekan tombol "Simpan Surat".
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -152,7 +155,7 @@ Ketika koneksi internet atau server terputus saat Admin TU menekan tombol "Simpa
 
 ---
 
-## 7. POSTCONDITIONS
+# 7. POSTCONDITIONS
 
 | ID | Condition |
 |---|---|
@@ -164,61 +167,62 @@ Ketika koneksi internet atau server terputus saat Admin TU menekan tombol "Simpa
 
 ---
 
-## 8. BUSINESS RULES
+# 8. BUSINESS RULES
 
 | Rule ID | Description |
 |---|---|
-| BR-003 | Status surat dimulai dari `Diterima` |
-| BR-006 | Notifikasi otomatis dikirim ke Kepala Sekolah setiap ada surat masuk baru |
-| BR-008 | Setiap perubahan status surat harus tercatat sebagai entri baru di tabel `status_surat` |
-| BR-012 | File scan hanya PDF/JPG/PNG, maksimal 10MB |
-| BR-020 | File scan disimpan sebagai BYTEA di database Neon |
-| BR-021 | Nomor surat di-trim spasi sebelum disimpan |
+| BR-03 | Status surat dimulai dari `Diterima` |
+| BR-06 | Notifikasi otomatis dikirim ke Kepala Sekolah setiap ada surat masuk baru |
+| BR-08 | Setiap perubahan status surat harus tercatat sebagai entri baru di tabel `status_surat` |
+| BR-12 | File scan hanya PDF/JPG/PNG, maksimal 10MB |
+| BR-15 | Setiap perubahan data wajib didorong secara realtime via WebSocket |
+| BR-20 | File scan disimpan sebagai BYTEA di database Neon |
+| BR-21 | Nomor surat di-trim spasi sebelum disimpan |
 
 ---
 
-## 9. RELATED PAGES
+# 9. RELATED PAGES
 
 | Page ID | Page Name |
 |---|---|
-| PAGE-003 | Input Surat Baru (`/surat/tambah`) |
-| PAGE-004 | Detail Surat (`/surat/:id`) |
-| PAGE-005 | Daftar Surat (`/surat`) |
+| PAGE-004 | Input Surat Baru (`/surat/tambah`) |
+| PAGE-005 | Detail Surat (`/surat/:id`) |
+| PAGE-003 | Daftar Surat (`/surat`) |
 
 ---
 
-## 10. DATA USAGE
+# 10. DATA USAGE
 
-### 10.1 Data Read
+## 10.1 Data Read
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | pengguna | Memvalidasi role Admin TU |
 
-### 10.2 Data Created
+## 10.2 Data Created
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | surat_masuk | Data surat baru dengan status `Diterima` |
 | status_surat | Entri pertama timeline status |
 | notifikasi | Notifikasi untuk Kepala Sekolah |
 | audit_log | Catatan aksi CREATE |
 
-### 10.3 Data Updated
+## 10.3 Data Updated
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang diupdate |
+| Tidak ada | Tidak ada data yang diupdate |
 
-### 10.4 Data Deleted
+## 10.4 Data Deleted
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang dihapus |
+| Tidak ada | Tidak ada data yang dihapus |
 
 ---
 
-## 11. PERMISSIONS
+# 11. PERMISSIONS
 
 | Role | Access |
 |---|---|
@@ -230,7 +234,7 @@ Ketika koneksi internet atau server terputus saat Admin TU menekan tombol "Simpa
 
 ---
 
-## 12. ACCEPTANCE CRITERIA
+# 12. ACCEPTANCE CRITERIA
 
 | AC ID | Description |
 |---|---|
@@ -245,9 +249,9 @@ Ketika koneksi internet atau server terputus saat Admin TU menekan tombol "Simpa
 
 ---
 
-## 13. TRACEABILITY
+# 13. TRACEABILITY
 
-### Requirement Traceability
+## Requirement Traceability
 
 | Requirement ID |
 |---|
@@ -256,17 +260,17 @@ Ketika koneksi internet atau server terputus saat Admin TU menekan tombol "Simpa
 | BR-20 |
 | BR-21 |
 
-### Information Architecture Traceability
+## Information Architecture Traceability
 
 | Page ID |
 |---|
-| PAGE-003 |
 | PAGE-004 |
 | PAGE-005 |
+| PAGE-003 |
 
 ---
 
-## 14. REVISION HISTORY
+# 14. REVISION HISTORY
 
 | Version | Date | Author | Description |
 |---|---|---|---|

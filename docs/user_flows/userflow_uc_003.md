@@ -3,25 +3,28 @@
 Document Version: v0.1
 
 Use Case ID: UC-003
+
 Use Case Name: Buat Disposisi Digital
 
-Status: Draft
+Status: Active
+
 Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
 
-## 1. OVERVIEW
+# 1. OVERVIEW
 
-### 1.1 Summary
+## 1.1 Summary
 
 Kepala Sekolah memilih surat masuk yang sudah tercatat di sistem, kemudian membuat disposisi digital dengan memilih penerima (Guru/Staf), mengisi instruksi tugas, dan menetapkan deadline. Sistem memperbarui status surat menjadi `Didisposisi` dan mengirim notifikasi ke penerima.
 
-### 1.2 Goal
+## 1.2 Goal
 
 Kepala Sekolah ingin menugaskan tindak lanjut surat kepada Guru/Staf yang relevan secara digital dan terdokumentasi.
 
-### 1.3 Requirement References
+## 1.3 Requirement References
 
 | Requirement ID | Requirement Name |
 |---|---|
@@ -29,23 +32,23 @@ Kepala Sekolah ingin menugaskan tindak lanjut surat kepada Guru/Staf yang releva
 | BR-04 | Disposisi hanya dapat dibuat oleh Kepala Sekolah |
 | BR-05 | Satu surat dapat memiliki lebih dari satu disposisi |
 
-### 1.4 Primary Actor
+## 1.4 Primary Actor
 
 Kepala Sekolah
 
-### 1.5 Supporting Actors
+## 1.5 Supporting Actors
 
 Sistem Notifikasi, Guru/Staf (penerima disposisi)
 
 ---
 
-## 2. TRIGGER
+# 2. TRIGGER
 
 Kepala Sekolah menerima notifikasi surat masuk baru, atau membuka menu "Surat Masuk" di sidebar untuk memilih surat yang akan didisposisi.
 
 ---
 
-## 3. PRECONDITIONS
+# 3. PRECONDITIONS
 
 | ID | Condition |
 |---|---|
@@ -55,7 +58,7 @@ Kepala Sekolah menerima notifikasi surat masuk baru, atau membuka menu "Surat Ma
 
 ---
 
-## 4. MAIN FLOW
+# 4. MAIN FLOW
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -70,6 +73,7 @@ Kepala Sekolah menerima notifikasi surat masuk baru, atau membuka menu "Surat Ma
 | 9 | | Server memperbarui status surat di tabel `surat_masuk` menjadi `Didisposisi` |
 | 10 | | Server mencatat entri baru di tabel `status_surat`: status `Didisposisi`, waktu sekarang, oleh Kepala Sekolah |
 | 11 | | Server mengirim notifikasi otomatis ke Guru/Staf penerima: "Anda mendapat disposisi baru untuk surat [Perihal]. Deadline: [tanggal]." |
+| 11.5 | | Server mengirim notifikasi realtime ke Wakasek sesuai bidang: "Ada disposisi baru untuk surat [Perihal] di bidang Anda." (SRS F-04) |
 | 12 | | Server mencatat ke tabel `audit_log`: aksi CREATE pada entitas disposisi |
 | 13 | | Sistem mendorong update realtime via WebSocket ke aktor terkait |
 | 14 | | Sistem menampilkan toast success: "Disposisi berhasil dikirim." |
@@ -77,15 +81,15 @@ Kepala Sekolah menerima notifikasi surat masuk baru, atau membuka menu "Surat Ma
 
 ---
 
-## 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
-### AF-001: Field Wajib Tidak Diisi
+## AF-001: Field Wajib Tidak Diisi
 
-#### Condition
+### Condition
 
 Ketika Kepala Sekolah menekan tombol "Buat Disposisi" tanpa memilih penerima, mengisi instruksi, atau memilih deadline.
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -94,26 +98,26 @@ Ketika Kepala Sekolah menekan tombol "Buat Disposisi" tanpa memilih penerima, me
 | 3 | | Jika instruksi tidak diisi: "Instruksi tugas wajib diisi." |
 | 4 | | Jika deadline tidak dipilih atau tanggal sudah lewat: "Deadline wajib diisi dan tidak boleh tanggal yang sudah lewat." |
 
-### AF-002: Disposisi ke Penerima Lain untuk Surat yang Sama
+## AF-002: Disposisi ke Penerima Lain untuk Surat yang Sama
 
-#### Condition
+### Condition
 
 Ketika Kepala Sekolah ingin mendisposisi surat yang sama ke lebih dari satu penerima (BR-05).
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
-| 1 | Kepala Sekolah mengulangi langkah 2-7 Main Flow untuk penerima berbeda | Untuk setiap penerima, sistem membuat disposisi terpisah |
+| 1 | Kepala Sekolah mengulangi langkah 2-7 Alur Utama untuk penerima berbeda | Untuk setiap penerima, sistem membuat disposisi terpisah |
 | 2 | | Riwayat disposisi sebelumnya tetap tersimpan |
 
-### AF-003: Surat Sudah Pernah Didisposisi
+## AF-003: Surat Sudah Pernah Didisposisi
 
-#### Condition
+### Condition
 
 Ketika Kepala Sekolah membuka surat yang sudah berstatus `Didisposisi`.
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -122,28 +126,28 @@ Ketika Kepala Sekolah membuka surat yang sudah berstatus `Didisposisi`.
 
 ---
 
-## 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
-### EF-001: Penerima Tidak Lagi Aktif
+## EF-001: Penerima Tidak Lagi Aktif
 
-#### Condition
+### Condition
 
 Ketika akun Guru/Staf yang dipilih dinonaktifkan (is_active = false) setelah dropdown dimuat.
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
 | 1 | Kepala Sekolah memilih penerima dan mengklik "Buat Disposisi" | Server memvalidasi status aktif penerima |
 | 2 | | Jika tidak aktif: sistem menampilkan error "Penerima disposisi tidak aktif. Pilih penerima lain." |
 
-### EF-002: Koneksi Server Terputus
+## EF-002: Koneksi Server Terputus
 
-#### Condition
+### Condition
 
 Ketika koneksi terputus saat submit disposisi.
 
-#### Flow
+### Flow
 
 | Step | Actor Action | System Response |
 |---|---|---|
@@ -153,7 +157,7 @@ Ketika koneksi terputus saat submit disposisi.
 
 ---
 
-## 7. POSTCONDITIONS
+# 7. POSTCONDITIONS
 
 | ID | Condition |
 |---|---|
@@ -162,64 +166,65 @@ Ketika koneksi terputus saat submit disposisi.
 | POST-003 | Entri timeline baru tersimpan di tabel `status_surat` |
 | POST-004 | Notifikasi terkirim ke Guru/Staf penerima disposisi |
 | POST-005 | Entri audit log tercatat |
+| POST-006 | Wakasek sesuai bidang menerima notifikasi disposisi baru |
 
 ---
 
-## 8. BUSINESS RULES
+# 8. BUSINESS RULES
 
 | Rule ID | Description |
 |---|---|
-| BR-004 | Disposisi hanya dapat dibuat oleh Kepala Sekolah dan harus menyertakan: penerima, instruksi, dan deadline |
-| BR-005 | Satu surat masuk dapat memiliki lebih dari satu disposisi (disposisi ke banyak penerima) |
-| BR-007 | Notifikasi otomatis dikirim ke Guru/Staf setiap ada disposisi baru yang ditujukan kepadanya |
-| BR-008 | Setiap perubahan status surat harus tercatat sebagai entri baru di tabel `status_surat` |
-| BR-013 | Surat yang sudah berstatus `Selesai` tidak dapat diubah statusnya kembali |
+| BR-04 | Disposisi hanya dapat dibuat oleh Kepala Sekolah dan harus menyertakan: penerima, instruksi, dan deadline |
+| BR-05 | Satu surat masuk dapat memiliki lebih dari satu disposisi (disposisi ke banyak penerima) |
+| BR-07 | Notifikasi otomatis dikirim ke Guru/Staf setiap ada disposisi baru yang ditujukan kepadanya |
+| BR-08 | Setiap perubahan status surat harus tercatat sebagai entri baru di tabel `status_surat` |
+| BR-13 | Surat yang sudah berstatus `Selesai` tidak dapat diubah statusnya kembali |
 
 ---
 
-## 9. RELATED PAGES
+# 9. RELATED PAGES
 
 | Page ID | Page Name |
 |---|---|
-| PAGE-004 | Detail Surat (`/surat/:id`) |
-| PAGE-006 | Buat Disposisi (`/disposisi/buat/:idSurat`) |
-| PAGE-007 | Daftar Disposisi Kepala Sekolah (`/disposisi`) |
+| PAGE-005 | Detail Surat (`/surat/:id`) |
+| PAGE-008 | Buat Disposisi (`/disposisi/buat/:idSurat`) |
+| PAGE-006 | Daftar Disposisi Kepala Sekolah (`/disposisi`) |
 
 ---
 
-## 10. DATA USAGE
+# 10. DATA USAGE
 
-### 10.1 Data Read
+## 10.1 Data Read
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | surat_masuk | Mengambil data surat yang akan didisposisi |
 | pengguna | Mendapatkan daftar Guru/Staf untuk dropdown penerima |
 
-### 10.2 Data Created
+## 10.2 Data Created
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | disposisi | Data disposisi baru |
 | status_surat | Entri timeline perubahan status ke `Didisposisi` |
 | notifikasi | Notifikasi untuk Guru/Staf penerima |
 | audit_log | Catatan aksi CREATE |
 
-### 10.3 Data Updated
+## 10.3 Data Updated
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | surat_masuk | Status berubah dari `Diterima` menjadi `Didisposisi` |
 
-### 10.4 Data Deleted
+## 10.4 Data Deleted
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang dihapus |
+| Tidak ada | Tidak ada data yang dihapus |
 
 ---
 
-## 11. PERMISSIONS
+# 11. PERMISSIONS
 
 | Role | Access |
 |---|---|
@@ -231,7 +236,7 @@ Ketika koneksi terputus saat submit disposisi.
 
 ---
 
-## 12. ACCEPTANCE CRITERIA
+# 12. ACCEPTANCE CRITERIA
 
 | AC ID | Description |
 |---|---|
@@ -246,9 +251,9 @@ Ketika koneksi terputus saat submit disposisi.
 
 ---
 
-## 13. TRACEABILITY
+# 13. TRACEABILITY
 
-### Requirement Traceability
+## Requirement Traceability
 
 | Requirement ID |
 |---|
@@ -256,17 +261,17 @@ Ketika koneksi terputus saat submit disposisi.
 | BR-04 |
 | BR-05 |
 
-### Information Architecture Traceability
+## Information Architecture Traceability
 
 | Page ID |
 |---|
-| PAGE-004 |
+| PAGE-005 |
+| PAGE-008 |
 | PAGE-006 |
-| PAGE-007 |
 
 ---
 
-## 14. REVISION HISTORY
+# 14. REVISION HISTORY
 
 | Version | Date | Author | Description |
 |---|---|---|---|
