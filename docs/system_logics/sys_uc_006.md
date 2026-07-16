@@ -1,10 +1,10 @@
-# System Logic: UC-006 Pencarian Lanjutan
+# System Logic: UC-006 Advanced Search
 
 Document Version: v1.0
 
 Use Case ID: UC-006
 
-Use Case Name: Pencarian Lanjutan
+Use Case Name: Advanced Search
 
 Status: Draft
 
@@ -16,15 +16,15 @@ Author: System Analyst AI
 
 ## 1. Overview
 
-This document defines the system logic for searching and filtering letters.
+This document defines the system logic for letter search and filtering.
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Daftar Surat | `/surat` | Tabel surat dengan filter & pencarian |
+| Letter List | `/surat` | Letter table with filters & search |
 
 ---
 
@@ -32,7 +32,7 @@ This document defines the system logic for searching and filtering letters.
 
 | Entity | Table | Description |
 |---|---|---|
-| Surat Masuk | `surat_masuk` | Data surat yang dicari |
+| Incoming Letter | `surat_masuk` | Letter data being searched |
 
 ---
 
@@ -47,24 +47,24 @@ sequenceDiagram
 
     User->>Frontend: Navigate to /surat
     Frontend->>API: GET /api/surat
-    API->>Database: SELECT surat (filtered by role)
-    API-->>Frontend: 200 OK + surat list
-    Frontend-->>User: Display tabel surat
+    API->>Database: SELECT letter (filtered by role)
+    API-->>Frontend: 200 OK + letter list
+    Frontend-->>User: Display letter table
 
     User->>Frontend: Type in search box
     Frontend->>Frontend: Auto-search (debounce 300ms)
 
-    alt Search by nomor
+    alt Search by number
         Frontend->>API: GET /api/surat?search=001
-        API->>Database: SELECT surat WHERE nomor_surat ILIKE '%001%'
+        API->>Database: SELECT letter WHERE nomor_surat ILIKE '%001%'
         API-->>Frontend: 200 OK + filtered list
     else Filter by status
         Frontend->>API: GET /api/surat?status=Diterima
-        API->>Database: SELECT surat WHERE status='Diterima'
+        API->>Database: SELECT letter WHERE status='Diterima'
         API-->>Frontend: 200 OK + filtered list
     else Advanced filter
         Frontend->>API: GET /api/surat?tanggal_mulai=2026-06-01&tanggal_akhir=2026-06-30&pengirim=Dinas
-        API->>Database: SELECT surat WHERE tanggal AND pengirim
+        API->>Database: SELECT letter WHERE date AND sender
         API-->>Frontend: 200 OK + filtered list
     end
 
@@ -77,7 +77,7 @@ sequenceDiagram
 
 ### 5.1 GET /api/surat
 
-Daftar surat dengan filter & pencarian.
+Letter list with filters & search.
 
 **Request Headers:**
 
@@ -89,14 +89,14 @@ Daftar surat dengan filter & pencarian.
 
 | Param | Type | Description |
 |---|---|---|
-| search | string | Pencarian nomor surat |
-| status | string | Filter status (Diterima/Didisposisi/Diproses/Selesai) |
-| tanggal_mulai | date | Filter tanggal mulai |
-| tanggal_akhir | date | Filter tanggal akhir |
-| pengirim | string | Filter pengirim (ILIKE) |
-| perihal | string | Filter perihal (ILIKE) |
-| page | number | Halaman (default: 1) |
-| limit | number | Limit per halaman (default: 10) |
+| search | string | Letter number search |
+| status | string | Status filter (Received/Dispositioned/Processing/Completed) |
+| tanggal_mulai | date | Start date filter |
+| tanggal_akhir | date | End date filter |
+| pengirim | string | Sender filter (ILIKE) |
+| perihal | string | Subject filter (ILIKE) |
+| page | number | Page (default: 1) |
+| limit | number | Limit per page (default: 10) |
 
 **Success Response (200 OK):**
 
@@ -129,7 +129,42 @@ Daftar surat dengan filter & pencarian.
 
 ---
 
-## 6. Traceability
+## 6. Data Flow
+
+Search and filter parameters are sent from the frontend as query params to the `GET /api/surat` endpoint. The backend builds the SQL query dynamically based on the given parameters: `search` is applied as `ILIKE` on the `nomor_surat` column, `status` as exact match, `tanggal_mulai`/`tanggal_akhir` as range on `tanggal_diterima`, and `pengirim`/`perihal` as `ILIKE`. The query result is returned with pagination metadata (total, page, limit, totalPages).
+
+---
+
+## 7. Validation Rules
+
+| Rule | Description |
+|---|---|
+| Query params `tanggal_mulai`, `tanggal_akhir` must be valid date format (YYYY-MM-DD) | If format is invalid, return 400 Bad Request |
+| Query params `pengirim`, `perihal` are strings, sanitized for ILIKE | Input sanitized to prevent SQL injection on ILIKE operations |
+| `status` must be one of: Received, Dispositioned, Processing, Completed | If status is invalid, return 400 Bad Request |
+
+---
+
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| JWT authentication required | Endpoint requires `Authorization: Bearer <jwt>` header |
+| Teacher/Staff only see letters disposed to them (BR-11) | Query always filtered by role: Teacher/Staff only see letters with dispositions directed to them |
+| Vice Principal only sees department letters (BR-10) | Query always filtered by department managed by Vice Principal |
+
+---
+
+## 9. Business Rule References
+
+| Code | Rule |
+|---|---|
+| BR-10 | Vice Principal only sees letters within their department |
+| BR-11 | Teacher/Staff only see letters disposed to them |
+
+---
+
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|

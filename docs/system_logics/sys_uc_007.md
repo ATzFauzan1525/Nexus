@@ -1,10 +1,10 @@
-# System Logic: UC-007 Lihat Timeline Surat
+# System Logic: UC-007 View Letter Timeline
 
 Document Version: v1.0
 
 Use Case ID: UC-007
 
-Use Case Name: Lihat Timeline Surat
+Use Case Name: View Letter Timeline
 
 Status: Draft
 
@@ -20,11 +20,11 @@ This document defines the system logic for viewing letter timeline (event sourci
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Detail Surat | `/surat/:id` | Detail surat + timeline riwayat |
+| Letter Detail | `/surat/:id` | Letter detail + history timeline |
 
 ---
 
@@ -32,8 +32,8 @@ This document defines the system logic for viewing letter timeline (event sourci
 
 | Entity | Table | Description |
 |---|---|---|
-| Status Surat | `status_surat` | Riwayat perubahan status |
-| Surat Masuk | `surat_masuk` | Data surat |
+| Letter Status | `status_surat` | Status change history |
+| Incoming Letter | `surat_masuk` | Letter data |
 
 ---
 
@@ -48,15 +48,15 @@ sequenceDiagram
 
     User->>Frontend: Navigate to /surat/:id
     Frontend->>API: GET /api/surat/:id
-    API->>Database: SELECT surat + disposisi + status_surat
+    API->>Database: SELECT letter + disposition + status_surat
     API-->>Frontend: 200 OK + Surat object with timeline
-    Frontend-->>User: Display detail surat + timeline
+    Frontend-->>User: Display letter detail + timeline
 
-    Note over Frontend: Timeline menampilkan:
-    Note over Frontend: - Diterima (tanggal)
-    Note over Frontend: - Didisposisi (kepala → bidang)
-    Note over Frontend: - Diproses (bidang)
-    Note over Frontend: - Selesai (bidang + tanggal)
+    Note over Frontend: Timeline displays:
+    Note over Frontend: - Received (date)
+    Note over Frontend: - Dispositioned (principal → department)
+    Note over Frontend: - Processing (department)
+    Note over Frontend: - Completed (department + date)
 ```
 
 ---
@@ -65,7 +65,7 @@ sequenceDiagram
 
 ### 5.1 GET /api/surat/:id
 
-Detail surat + timeline.
+Letter detail + timeline.
 
 **Request Headers:**
 
@@ -112,7 +112,7 @@ Detail surat + timeline.
       },
       {
         "status": "Didisposisi",
-        "catangan": null,
+        "catatan": null,
         "diubah_oleh": "Kepala Sekolah → Kurikulum",
         "created_at": "2026-06-28T10:30:00Z"
       }
@@ -135,15 +135,38 @@ Detail surat + timeline.
 
 ---
 
-## 6. Business Rules Reference
+## 6. Data Flow
 
-| Code | Rule |
-|---|---|
-| BR-08 | Setiap perubahan status tercatat di tabel status_surat (event sourcing) |
+Letter data is fetched from the `surat_masuk` table by `:id`. Status history is retrieved from the `status_surat` table filtered by matching `surat_id`, sorted by `created_at` ascending to form a chronological timeline. Both datasets are joined on the backend and sent as a single JSON object: the `timeline` field contains the status history array, the `disposisi` field contains the disposition history, and the `komentar` field contains comments related to the letter.
 
 ---
 
-## 7. Traceability
+## 7. Validation Rules
+
+| Rule | Description |
+|---|---|
+| Param `:id` must be a valid UUID | UUID v4 format, if invalid return 400 Bad Request |
+
+---
+
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| JWT authentication required | Endpoint requires `Authorization: Bearer <jwt>` header |
+| Teacher/Staff only see letters disposed to them (BR-11) | If role is GURU_STAF, backend verifies letter has disposition directed to that user |
+
+---
+
+## 9. Business Rule References
+
+| Code | Rule |
+|---|---|
+| BR-08 | Every status change is recorded in status_surat table (event sourcing) |
+
+---
+
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|

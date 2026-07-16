@@ -1,10 +1,10 @@
-# System Logic: UC-004 Update Status Surat
+# System Logic: UC-004 Update Letter Status
 
 Document Version: v1.0
 
 Use Case ID: UC-004
 
-Use Case Name: Update Status Surat (Tindak Lanjut & Selesai)
+Use Case Name: Update Letter Status (Follow-up & Completed)
 
 Status: Draft
 
@@ -16,16 +16,16 @@ Author: System Analyst AI
 
 ## 1. Overview
 
-This document defines the system logic for updating letter status by Guru/Staf.
+This document defines the system logic for updating letter status by Teacher/Staff.
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Disposisi Saya | `/disposisi/saya` | Daftar disposisi yang diterima |
-| Detail Disposisi | `/disposisi/:id` | Detail instruksi + tombol update status |
+| My Dispositions | `/disposisi/saya` | List of received dispositions |
+| Disposition Detail | `/disposisi/:id` | Instruction detail + status update button |
 
 ---
 
@@ -33,10 +33,10 @@ This document defines the system logic for updating letter status by Guru/Staf.
 
 | Entity | Table | Description |
 |---|---|---|
-| Status Surat | `status_surat` | Riwayat perubahan status |
-| Surat Masuk | `surat_masuk` | Status surat terkini |
-| Disposisi | `disposisi` | Disposisi terkait |
-| Notifikasi | `notifikasi` | Notifikasi ke Kepala & Wakasek |
+| Letter Status | `status_surat` | Status change history |
+| Incoming Letter | `surat_masuk` | Current letter status |
+| Disposition | `disposisi` | Related disposition |
+| Notification | `notifikasi` | Notification to Principal & Vice Principal |
 
 ---
 
@@ -53,19 +53,19 @@ sequenceDiagram
     actor Wakasek
 
     Guru->>Browser: Navigate to /disposisi/:id
-    Browser->>Frontend: Load detail disposisi
+    Browser->>Frontend: Load disposition detail
     Frontend->>API: GET /api/disposisi/:id
-    API->>Database: Query disposisi + surat + timeline
+    API->>Database: Query disposition + letter + timeline
     API-->>Frontend: 200 OK + Disposisi object
-    Frontend-->>Guru: Display detail + tombol aksi
+    Frontend-->>Guru: Display detail + action buttons
 
-    alt Status Didisposisi
+    alt Status Dispositioned
         Guru->>Frontend: Click "Mulai Diproses"
-        Frontend->>Frontend: Show modal konfirmasi
+        Frontend->>Frontend: Show confirmation modal
         Guru->>Frontend: Confirm update
 
         Frontend->>API: POST /api/status
-        API->>Database: INSERT status_surat (Diproses)
+        API->>Database: INSERT status_surat (Processing)
         API->>Database: UPDATE surat_masuk.status = 'Diproses'
         API->>API: Log audit_log (UPDATE_STATUS)
         API-->>Frontend: 200 OK
@@ -75,13 +75,13 @@ sequenceDiagram
         API->>Kepala: Emit 'status:update' to room role:KEPALA_SEKOLAH
         API->>Wakasek: Emit 'status:update' to room role:WAKASEK_BIDANG:{bidang}
         API->>Wakasek: Emit 'notifikasi:baru'
-    else Status Diproses
+    else Status Processing
         Guru->>Frontend: Click "Tandai Selesai"
-        Frontend->>Frontend: Show modal + input catatan
-        Guru->>Frontend: Fill catatan + Confirm
+        Frontend->>Frontend: Show modal + notes input
+        Guru->>Frontend: Fill notes + Confirm
 
         Frontend->>API: POST /api/status
-        API->>Database: INSERT status_surat (Selesai)
+        API->>Database: INSERT status_surat (Completed)
         API->>Database: UPDATE surat_masuk.status = 'Selesai'
         API->>API: Log audit_log (UPDATE_STATUS)
         API-->>Frontend: 200 OK
@@ -100,7 +100,7 @@ sequenceDiagram
 
 ### 5.1 POST /api/status
 
-Update status surat (Tindak Lanjut / Selesai).
+Update letter status (Follow-up / Completed).
 
 **Request Headers:**
 
@@ -114,12 +114,12 @@ Update status surat (Tindak Lanjut / Selesai).
 ```json
 {
   "surat_id": "uuid (required)",
-  "status": "string (required: 'Diproses' atau 'Selesai')",
+  "status": "string (required: 'Diproses' or 'Selesai')",
   "catatan": "string (optional)"
 }
 ```
 
-**Request Example (Mulai Diproses):**
+**Request Example (Start Processing):**
 
 ```json
 {
@@ -129,7 +129,7 @@ Update status surat (Tindak Lanjut / Selesai).
 }
 ```
 
-**Request Example (Tandai Selesai):**
+**Request Example (Mark Completed):**
 
 ```json
 {
@@ -152,7 +152,7 @@ Update status surat (Tindak Lanjut / Selesai).
     "diubah_oleh": "uuid-guru",
     "created_at": "2026-06-28T11:00:00Z"
   },
-  "message": "Status berhasil diperbarui"
+  "message": "Status updated successfully"
 }
 ```
 
@@ -162,11 +162,11 @@ Update status surat (Tindak Lanjut / Selesai).
 {
   "success": false,
   "data": null,
-  "message": "Status tidak valid",
+  "message": "Invalid status",
   "errors": [
     {
       "field": "status",
-      "message": "Status harus Diproses atau Selesai"
+      "message": "Status must be Diproses or Selesai"
     }
   ]
 }
@@ -174,54 +174,64 @@ Update status surat (Tindak Lanjut / Selesai).
 
 ---
 
-## 6. Data Mapping
+## 6. Data Flow
 
-| Frontend Field | Database Column | Transformation |
+| Frontend Column | Database Column | Transformation |
 |---|---|---|
 | surat_id | surat_id | Direct mapping |
 | status | status | Direct mapping |
 | catatan | catatan | Direct mapping |
-| - | diubah_oleh | From JWT token (Guru) |
+| - | diubah_oleh | From JWT token (Teacher) |
 | - | surat_masuk.status | Updated to new status |
 
 ---
 
 ## 7. Validation Rules
 
-| Field | Rule | Error Message |
+| Column | Rule | Error Message |
 |---|---|---|
-| surat_id | Required, valid UUID | "Surat tidak valid" |
-| status | Must be 'Diproses' or 'Selesai' | "Status tidak valid" |
-| catatan | Optional, max 500 chars | "Catatan terlalu panjang" |
-| - | Status harus berurutan (BR-03) | "Status tidak boleh melompat" |
+| surat_id | Required, valid UUID | "Invalid letter" |
+| status | Must be 'Diproses' or 'Selesai' | "Invalid status" |
+| catatan | Optional, max 500 characters | "Notes too long" |
+| - | Status must be sequential (BR-03) | "Status cannot skip steps" |
 
 ---
 
-## 8. Business Rules Reference
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| Authentication | JWT authentication required |
+| Authorization | Only assigned Teacher/Staff can update status (BR-11) |
+| Status Flow | Status must follow sequential flow: Dispositioned → Processing → Completed (BR-03) |
+
+---
+
+## 9. Business Rule References
 
 | Code | Rule |
 |---|---|
-| BR-03 | Status hanya boleh berubah: Diterima → Didisposisi → Diproses → Selesai |
-| BR-08 | Perubahan status tercatat di tabel status_surat (event sourcing) |
-| BR-11 | Guru/Staf hanya dapat melihat surat yang didisposisikan kepadanya |
-| BR-13 | Surat yang sudah Selesai tidak dapat diubah statusnya kembali |
-| BR-15 | Perubahan data didorong secara realtime via WebSocket |
+| BR-03 | Status may only change: Received → Dispositioned → Processing → Completed |
+| BR-08 | Status changes recorded in status_surat table (event sourcing) |
+| BR-11 | Teacher/Staff can only see letters disposed to them |
+| BR-13 | Completed letters cannot have their status changed again |
+| BR-15 | Data changes pushed in realtime via WebSocket |
 
 ---
 
-## 9. WebSocket Events
+## 10. WebSocket Events
 
 | Event | Room | Payload |
 |---|---|---|
-| status:update | role:KEPALA_SEKOLAH | Status surat terbaru |
-| status:update | role:WAKASEK_BIDANG:{bidang} | Status surat terbaru |
-| notifikasi:baru | user:{idKepala} | Object Notifikasi |
-| notifikasi:baru | user:{idWakasek} | Object Notifikasi |
-| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Ringkasan dashboard |
+| status:update | role:KEPALA_SEKOLAH | Latest letter status |
+| status:update | role:WAKASEK_BIDANG:{bidang} | Latest letter status |
+| notifikasi:baru | user:{idKepala} | Notifikasi object |
+| notifikasi:baru | user:{idWakasek} | Notifikasi object |
+| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Dashboard summary |
 
 ---
 
-## 10. Traceability
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|
