@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-010  
+Use Case ID: UC-010
+
 Use Case Name: Lihat Dashboard Monitoring
 
-Status: Draft  
-Last Updated: 2026-06-28  
+Status: Active
+
+Last Updated: 2026-06-28
+
 Author: System Analyst AI
 
 ---
@@ -69,7 +72,7 @@ Pengguna berhasil login dan diarahkan otomatis ke halaman `/dashboard`, atau men
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Tidak Ada Data Surat
 
@@ -99,7 +102,7 @@ Ketika Guru/Staf mengakses dashboard.
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Data Gagal Dimuat dari Server
 
@@ -140,9 +143,9 @@ Ketika terjadi kesalahan server atau koneksi jaringan.
 
 | Page ID | Page Name |
 |---|---|
-| PAGE-DASHBOARD | Dashboard (`/dashboard`) |
-| PAGE-SURAT | Daftar Surat (`/surat`) |
-| PAGE-SURAT-DETAIL | Detail Surat (`/surat/:id`) |
+| PAGE-002 | Dashboard (`/dashboard`) |
+| PAGE-003 | Daftar Surat (`/surat`) |
+| PAGE-005 | Detail Surat (`/surat/:id`) |
 
 ---
 
@@ -150,28 +153,28 @@ Ketika terjadi kesalahan server atau koneksi jaringan.
 
 ## 10.1 Data Read
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | SuratMasuk | Mengambil data surat untuk statistik dan tabel terbaru |
 | Disposisi | Mengambil data disposisi untuk Guru/Staf |
 
 ## 10.2 Data Created
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang dibuat |
+| Tidak ada | Tidak ada data yang dibuat |
 
 ## 10.3 Data Updated
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang diupdate |
+| Tidak ada | Tidak ada data yang diupdate |
 
 ## 10.4 Data Deleted
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang dihapus |
+| Tidak ada | Tidak ada data yang dihapus |
 
 ---
 
@@ -214,7 +217,7 @@ Ketika terjadi kesalahan server atau koneksi jaringan.
 
 | Page ID |
 |---|
-| PAGE-DASHBOARD |
+| PAGE-002 |
 
 ---
 

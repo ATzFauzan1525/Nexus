@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-009  
+Use Case ID: UC-009
+
 Use Case Name: Kelola Akun Pengguna
 
-Status: Draft  
-Last Updated: 2026-07-10  
+Status: Active
+
+Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
@@ -94,7 +97,7 @@ Admin TU membuka menu "Manajemen Pengguna" di sidebar navigasi.
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Membatalkan Tambah/Edit Pengguna
 
@@ -143,7 +146,7 @@ Ketika Admin TU ingin mereset password pengguna tanpa mengubah data lain.
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Username Duplikat
 
@@ -158,7 +161,7 @@ Ketika username yang dimasukkan sudah digunakan oleh akun lain.
 |1|Admin TU menekan tombol "Simpan"|Sistem memvalidasi username ke database|
 |2||Sistem mendeteksi username sudah ada|
 |3||Sistem menampilkan pesan error "Username sudah digunakan. Pilih username lain."|
-|4|Admin TU mengganti username|Sistem kembali ke validasi step|
+|4|Admin TU mengganti username|Sistem kembali ke validasi langkah|
 
 ---
 
@@ -217,9 +220,9 @@ Ketika Admin TU mencoba menghapus akunnya sendiri.
 
 |Page ID|Page Name|
 |---|---|
-|PAGE-008|Manajemen Pengguna|
-|PAGE-008-SUB-01|Tambah Pengguna|
-|PAGE-008-SUB-02|Edit Pengguna|
+|PAGE-015|Manajemen Pengguna|
+|PAGE-016|Tambah Pengguna|
+|PAGE-017|Edit Pengguna|
 
 ---
 
@@ -227,7 +230,7 @@ Ketika Admin TU mencoba menghapus akunnya sendiri.
 
 ## 10.1 Data Read
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |pengguna|Menampilkan daftar seluruh akun pengguna|
 |pengguna|Mengecek duplikasi username saat tambah/edit|
@@ -236,7 +239,7 @@ Ketika Admin TU mencoba menghapus akunnya sendiri.
 
 ## 10.2 Data Created
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |pengguna|Membuat data akun pengguna baru|
 |audit_log|Mencatat aksi CREATE pengguna|
@@ -245,7 +248,7 @@ Ketika Admin TU mencoba menghapus akunnya sendiri.
 
 ## 10.3 Data Updated
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |pengguna|Memperbarui data akun (nama, role, bidang, password)|
 |audit_log|Mencatat aksi UPDATE pengguna|
@@ -254,7 +257,7 @@ Ketika Admin TU mencoba menghapus akunnya sendiri.
 
 ## 10.4 Data Deleted
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |pengguna|Soft delete: `is_active = false` (tidak dihapus permanen)|
 |audit_log|Mencatat aksi DELETE pengguna|
@@ -300,13 +303,13 @@ Ketika Admin TU mencoba menghapus akunnya sendiri.
 
 |Page ID|
 |---|
-|PAGE-008|
-|PAGE-008-SUB-01|
-|PAGE-008-SUB-02|
+|PAGE-015|
+|PAGE-016|
+|PAGE-017|
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 |Version|Date|Author|Description|
 |---|---|---|---|

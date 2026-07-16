@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-008  
+Use Case ID: UC-008
+
 Use Case Name: Download Laporan PDF
 
-Status: Draft  
-Last Updated: 2026-07-10  
+Status: Active
+
+Last Updated: 2026-07-10
+
 Author: System Analyst AI
 
 ---
@@ -60,8 +63,8 @@ Admin TU membuka menu "Laporan" di sidebar navigasi.
 |---|---|---|
 |1|Admin TU membuka menu "Laporan" di sidebar|Sistem menampilkan halaman `/laporan`|
 |2||Sistem menampilkan form pemilihan periode: jenis periode (Harian/Mingguan/Bulanan) dan rentang tanggal|
-|3|Admin TU memilih jenis periode (Harian, Mingguan, atau Bulanan)|Sistem menyesuaikan opsi rentang tanggal sesuai jenis periode|
-|4|Admin TU memilih tanggal mulai dan tanggal akhir|Input diterima|
+|3|Admin TU memilih jenis periode (Harian, Mingguan, atau Bulanan)|Sistem otomatis menyesuaikan rentang tanggal: Harian = hari ini, Mingguan = 7 hari terakhir, Bulanan = 30 hari terakhir|
+|4|Admin TU memilih tanggal mulai dan tanggal akhir (opsional, dapat mengubah manual)|Input diterima|
 |5|Admin TU menekan tombol "Generate"|Sistem memvalidasi input tanggal (tanggal akhir >= tanggal mulai)|
 |6||Sistem mengagregasi data surat masuk dari rentang tanggal: total surat, status Diterima, Didisposisi, Diproses, Selesai|
 |7||Sistem menampilkan ringkasan statistik (KPI Cards) dan tabel detail surat pada periode tersebut|
@@ -72,7 +75,7 @@ Admin TU membuka menu "Laporan" di sidebar navigasi.
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Membatalkan Generate
 
@@ -105,7 +108,7 @@ Ketika tidak ada data surat masuk pada rentang tanggal yang dipilih.
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Tanggal Akhir Sebelum Tanggal Mulai
 
@@ -179,7 +182,7 @@ Ketika sesi JWT Admin TU kadaluarsa saat akan mendownload PDF.
 
 |Page ID|Page Name|
 |---|---|
-|PAGE-007|Laporan Rekapitulasi|
+|PAGE-013|Laporan (`/laporan`)|
 
 ---
 
@@ -187,7 +190,7 @@ Ketika sesi JWT Admin TU kadaluarsa saat akan mendownload PDF.
 
 ## 10.1 Data Read
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
 |surat_masuk|Mengambil seluruh data surat pada rentang tanggal yang dipilih|
 |status_surat|Mengambil status terkini setiap surat untuk agregasi statistik|
@@ -196,25 +199,25 @@ Ketika sesi JWT Admin TU kadaluarsa saat akan mendownload PDF.
 
 ## 10.2 Data Created
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dibuat|
+|Tidak ada|Tidak ada data yang dibuat|
 
 ---
 
 ## 10.3 Data Updated
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang diupdate|
+|Tidak ada|Tidak ada data yang diupdate|
 
 ---
 
 ## 10.4 Data Deleted
 
-|Entity|Description|
+|Entitas|Description|
 |---|---|
-|None|Tidak ada data yang dihapus|
+|Tidak ada|Tidak ada data yang dihapus|
 
 ---
 
@@ -234,6 +237,8 @@ Ketika sesi JWT Admin TU kadaluarsa saat akan mendownload PDF.
 |AC ID|Description|
 |---|---|
 |AC-001|Admin TU dapat memilih jenis periode (Harian/Mingguan/Bulanan)|
+|AC-001a|Sistem otomatis menyesuaikan rentang tanggal saat periode dipilih (harian = hari ini, mingguan = 7 hari terakhir, bulanan = 30 hari terakhir)|
+|AC-001b|Admin TU dapat mengubah tanggal mulai dan akhir secara manual setelah periode dipilih|
 |AC-002|Admin TU dapat memilih rentang tanggal mulai dan akhir|
 |AC-003|Sistem menampilkan ringkasan statistik setelah Generate|
 |AC-004|Sistem menampilkan tabel detail surat setelah Generate|
@@ -257,12 +262,13 @@ Ketika sesi JWT Admin TU kadaluarsa saat akan mendownload PDF.
 
 |Page ID|
 |---|
-|PAGE-007|
+|PAGE-013|
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 |Version|Date|Author|Description|
 |---|---|---|---|
+|0.2|2026-07-16|System Analyst AI|Tambahkan perilaku otomatis rentang tanggal saat periode dipilih (harian = hari ini, mingguan = 7 hari terakhir, bulanan = 30 hari terakhir).|
 |0.1|2026-07-10|System Analyst AI|Initial Draft|
