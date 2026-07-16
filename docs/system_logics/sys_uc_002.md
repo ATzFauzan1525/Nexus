@@ -1,10 +1,10 @@
-# System Logic: UC-002 Input Surat Masuk
+# System Logic: UC-002 Input Incoming Letter
 
 Document Version: v1.0
 
 Use Case ID: UC-002
 
-Use Case Name: Input Surat Masuk
+Use Case Name: Input Incoming Letter
 
 Status: Draft
 
@@ -16,16 +16,16 @@ Author: System Analyst AI
 
 ## 1. Overview
 
-This document defines the system logic for inputting incoming letters with file upload to Neon database as BYTEA.
+This document defines the system logic for incoming letter input with file upload to Neon database as BYTEA.
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Form Input Surat | `/surat/tambah` | Form input surat masuk baru |
-| Daftar Surat | `/surat` | Tabel daftar surat masuk |
+| Letter Input Form | `/surat/tambah` | New incoming letter input form |
+| Letter List | `/surat` | Incoming letter list table |
 
 ---
 
@@ -33,8 +33,8 @@ This document defines the system logic for inputting incoming letters with file 
 
 | Entity | Table | Description |
 |---|---|---|
-| Surat Masuk | `surat_masuk` | Data surat masuk + file scan BYTEA |
-| Pengguna | `pengguna` | ID pembuat (Admin TU) |
+| Incoming Letter | `surat_masuk` | Incoming letter data + BYTEA scan file |
+| User | `pengguna` | Creator ID (Admin TU) |
 
 ---
 
@@ -50,11 +50,11 @@ sequenceDiagram
     actor Kepala
 
     Admin->>Browser: Navigate to /surat/tambah
-    Browser->>Frontend: Load form input surat
+    Browser->>Frontend: Load letter input form
     Frontend-->>Admin: Display form
 
-    Admin->>Frontend: Fill form (nomor, tanggal, pengirim, perihal)
-    Admin->>Frontend: Upload file scan (PDF/JPG/PNG)
+    Admin->>Frontend: Fill form (number, date, sender, subject)
+    Admin->>Frontend: Upload scan file (PDF/JPG/PNG)
     Admin->>Frontend: Click "Simpan"
 
     Frontend->>Frontend: Validate form (all required fields)
@@ -62,10 +62,10 @@ sequenceDiagram
 
     alt Input valid
         Frontend->>API: POST /api/surat (multipart/form-data)
-        API->>API: Trim nomor_surat (BR-21)
+        API->>API: Trim letter_number (BR-21)
         API->>API: Validate file type & size (BR-12)
         API->>Database: INSERT surat_masuk (file_data as BYTEA)
-        API->>API: Create status_surat entry (Diterima)
+        API->>API: Create status_surat entry (Received)
         API->>API: Log audit_log (CREATE)
         API-->>Frontend: 201 Created + SuratMasuk object
         Frontend->>Browser: Redirect to /surat
@@ -86,7 +86,7 @@ sequenceDiagram
 
 ### 5.1 POST /api/surat
 
-Input surat masuk baru dengan file scan.
+Input new incoming letter with scan file.
 
 **Request Headers:**
 
@@ -97,13 +97,13 @@ Input surat masuk baru dengan file scan.
 
 **Request Body (Form Data):**
 
-| Field | Type | Required | Description |
+| Column | Type | Required | Description |
 |---|---|---|---|
-| nomor_surat | string | Yes | Nomor surat (akan di-trim) |
-| tanggal_diterima | date | Yes | Tanggal surat diterima |
-| pengirim | string | Yes | Nama pengirim |
-| perihal | string | Yes | Perihal/subject surat |
-| file_scan | file | Yes | File scan (PDF/JPG/PNG, max 10MB) |
+| nomor_surat | string | Yes | Letter number (will be trimmed) |
+| tanggal_diterima | date | Yes | Date letter was received |
+| pengirim | string | Yes | Sender name |
+| perihal | string | Yes | Letter subject |
+| file_scan | file | Yes | Scan file (PDF/JPG/PNG, max 10MB) |
 
 **Request Example:**
 
@@ -131,7 +131,7 @@ file_scan: [binary file]
     "created_by": "uuid-admin",
     "created_at": "2026-06-28T10:00:00Z"
   },
-  "message": "Surat masuk berhasil ditambahkan"
+  "message": "Incoming letter added successfully"
 }
 ```
 
@@ -145,7 +145,7 @@ file_scan: [binary file]
   "errors": [
     {
       "field": "nomor_surat",
-      "message": "Nomor surat sudah ada"
+      "message": "Letter number already exists"
     }
   ]
 }
@@ -157,11 +157,11 @@ file_scan: [binary file]
 {
   "success": false,
   "data": null,
-  "message": "File tidak valid",
+  "message": "Invalid file",
   "errors": [
     {
       "field": "file_scan",
-      "message": "Format file harus PDF, JPG, atau PNG"
+      "message": "File format must be PDF, JPG, or PNG"
     }
   ]
 }
@@ -169,11 +169,11 @@ file_scan: [binary file]
 
 ---
 
-## 6. Data Mapping
+## 6. Data Flow
 
-| Frontend Field | Database Column | Transformation |
+| Frontend Column | Database Column | Transformation |
 |---|---|---|
-| nomor_surat | nomor_surat | TRIM spasi (BR-21) |
+| nomor_surat | nomor_surat | TRIM spaces (BR-21) |
 | tanggal_diterima | tanggal_diterima | Direct mapping |
 | pengirim | pengirim | Direct mapping |
 | perihal | perihal | Direct mapping |
@@ -187,44 +187,55 @@ file_scan: [binary file]
 
 ## 7. Validation Rules
 
-| Field | Rule | Error Message |
+| Column | Rule | Error Message |
 |---|---|---|
-| nomor_surat | Required, unique | "Nomor surat sudah ada" |
+| nomor_surat | Required, unique | "Letter number already exists" |
 | nomor_surat | Will be trimmed | - |
-| tanggal_diterima | Required, valid date | "Tanggal tidak valid" |
-| pengirim | Required | "Pengirim harus diisi" |
-| perihal | Required | "Perihal harus diisi" |
-| file_scan | Required | "File harus diunggah" |
-| file_scan | Type: PDF, JPG, PNG | "Format file harus PDF, JPG, atau PNG" |
-| file_scan | Max size: 10MB | "Ukuran file maksimal 10MB" |
+| tanggal_diterima | Required, valid date | "Invalid date" |
+| pengirim | Required | "Sender is required" |
+| perihal | Required | "Subject is required" |
+| file_scan | Required | "File must be uploaded" |
+| file_scan | Type: PDF, JPG, PNG | "File format must be PDF, JPG, or PNG" |
+| file_scan | Max size: 10MB | "Maximum file size is 10MB" |
 
 ---
 
-## 8. Business Rules Reference
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| Authentication | JWT authentication required |
+| Authorization | Only Admin TU can create incoming letters (BR-04) |
+| File Size Limit | Max 10MB per file (BR-12) |
+| File Type Restriction | Only PDF, JPG, PNG allowed (BR-12) |
+
+---
+
+## 9. Business Rule References
 
 | Code | Rule |
 |---|---|
-| BR-06 | Notifikasi otomatis dikirim ke Kepala Sekolah setiap ada surat masuk baru |
-| BR-08 | Setiap perubahan status harus tercatat di tabel status_surat (event sourcing) |
-| BR-12 | File scan hanya boleh berformat PDF atau gambar (JPG/PNG). Maksimal 10MB |
-| BR-14 | Seluruh data tersimpan di Neon PostgreSQL (tidak ada localStorage untuk data) |
-| BR-15 | Perubahan data wajib didorong secara realtime via WebSocket |
-| BR-20 | File scan disimpan sebagai BYTEA di database Neon |
-| BR-21 | Input nomor surat akan di-trim spasi di depan dan belakang |
+| BR-06 | Automatic notification sent to Principal whenever new incoming letter arrives |
+| BR-08 | Every status change must be recorded in status_surat table (event sourcing) |
+| BR-12 | Scan files may only be PDF or image (JPG/PNG). Maximum 10MB |
+| BR-14 | All data stored in Neon PostgreSQL (no localStorage for data) |
+| BR-15 | Data changes must be pushed in realtime via WebSocket |
+| BR-20 | Scan files stored as BYTEA in Neon database |
+| BR-21 | Input letter number will be trimmed of leading and trailing spaces |
 
 ---
 
-## 9. WebSocket Events
+## 10. WebSocket Events
 
 | Event | Room | Payload |
 |---|---|---|
-| surat:baru | role:KEPALA_SEKOLAH | Object SuratMasuk lengkap |
-| notifikasi:baru | user:{idKepala} | Object Notifikasi |
-| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Ringkasan dashboard |
+| surat:baru | role:KEPALA_SEKOLAH | Complete SuratMasuk object |
+| notifikasi:baru | user:{idKepala} | Notifikasi object |
+| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Dashboard summary |
 
 ---
 
-## 10. Traceability
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|

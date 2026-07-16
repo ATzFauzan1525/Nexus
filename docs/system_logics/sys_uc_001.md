@@ -20,12 +20,12 @@ This document defines the system logic for user authentication, including sequen
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Login Page | `/login` | Form input username & password |
-| Dashboard | `/dashboard` | Halaman tujuan setelah login berhasil |
+| Login Page | `/login` | Username & password input form |
+| Dashboard | `/dashboard` | Destination page after successful login |
 
 ---
 
@@ -33,7 +33,7 @@ This document defines the system logic for user authentication, including sequen
 
 | Entity | Table | Description |
 |---|---|---|
-| Pengguna | `pengguna` | Data akun pengguna (username, password, role, bidang) |
+| Pengguna | `pengguna` | User account data (username, password, role, department) |
 
 ---
 
@@ -58,7 +58,7 @@ sequenceDiagram
 
     alt Input valid
         Frontend->>API: POST /api/auth/login
-        API->>Database: Query pengguna by username
+        API->>Database: Query user by username
 
         alt User found
             API->>API: Verify password (bcrypt)
@@ -71,11 +71,11 @@ sequenceDiagram
                 Frontend-->>User: Display Dashboard
             else Password mismatch
                 API-->>Frontend: 401 Unauthorized
-                Frontend-->>User: Show error "Username atau password salah"
+                Frontend-->>User: Show error "Invalid username or password"
             end
         else User not found
             API-->>Frontend: 401 Unauthorized
-            Frontend-->>User: Show error "Username atau password salah"
+            Frontend-->>User: Show error "Invalid username or password"
         end
     else Input empty
         Frontend-->>User: Show validation error
@@ -139,7 +139,7 @@ Authenticate user and create session.
 {
   "success": false,
   "data": null,
-  "message": "Username atau password salah",
+  "message": "Invalid username or password",
   "errors": []
 }
 ```
@@ -154,11 +154,11 @@ Authenticate user and create session.
   "errors": [
     {
       "field": "username",
-      "message": "Username harus diisi"
+      "message": "Username is required"
     },
     {
       "field": "password",
-      "message": "Password harus diisi"
+      "message": "Password is required"
     }
   ]
 }
@@ -168,7 +168,7 @@ Authenticate user and create session.
 
 ### 5.2 POST /api/auth/logout
 
-Logout pengguna dan hapus token dari client.
+Logout user and remove token from client.
 
 **Request Headers:**
 
@@ -186,16 +186,16 @@ Logout pengguna dan hapus token dari client.
 }
 ```
 
-**Client Action on Logout:**
+**Client Actions on Logout:**
 1. Remove JWT token from localStorage
-2. Disconnect WebSocket connection
+2. Disconnect WebSocket
 3. Redirect to `/login`
 
 ---
 
 ### 5.3 GET /api/auth/profile
 
-Get current authenticated user info.
+Get authenticated user information.
 
 **Request Headers:**
 
@@ -227,7 +227,7 @@ Get current authenticated user info.
 {
   "success": false,
   "data": null,
-  "message": "Token tidak valid",
+  "message": "Invalid token",
   "errors": []
 }
 ```
@@ -240,19 +240,19 @@ Get current authenticated user info.
 |---|---|---|---|
 | 1 | Username, Password | Frontend validation | Validated input |
 | 2 | Validated credentials | API authentication | JWT token |
-| 3 | JWT token | localStorage storage | Token tersimpan |
+| 3 | JWT token | localStorage storage | Token stored |
 | 4 | Token | WebSocket connection | Rooms joined |
 
 ---
 
 ## 7. Validation Rules
 
-| Field | Rule | Error Message |
+| Column | Rule | Error Message |
 |---|---|---|
-| username | Required, tidak boleh kosong | "Username harus diisi" |
-| password | Required, tidak boleh kosong | "Password harus diisi" |
-| username | Harus ada di database | "Username atau password salah" |
-| password | Harus match dengan bcrypt hash | "Username atau password salah" |
+| username | Required, cannot be empty | "Username is required" |
+| password | Required, cannot be empty | "Password is required" |
+| username | Must exist in database | "Invalid username or password" |
+| password | Must match bcrypt hash | "Invalid username or password" |
 
 ---
 
@@ -260,23 +260,23 @@ Get current authenticated user info.
 
 | Rule | Description |
 |---|---|
-| Password Hashing | Password di-hash menggunakan bcrypt dengan salt rounds >= 10 |
-| JWT Token | Token di-generate dengan secret key dari env JWT_SECRET |
-| Token Storage | Token disimpan di localStorage (BR-14: hanya JWT yang boleh di localStorage) |
-| Token Expiry | Token expired sesuai konfigurasi JWT |
+| Password Hashing | Password is hashed using bcrypt with salt rounds >= 10 |
+| JWT Token | Token is generated with secret key from env JWT_SECRET |
+| Token Storage | Token is stored in localStorage (BR-14: only JWT allowed in localStorage) |
+| Token Expiry | Token expires according to JWT configuration |
 
 ---
 
-## 9. Business Rules Reference
+## 9. Business Rule References
 
 | Code | Rule |
 |---|---|
-| BR-01 | Setiap pengguna wajib login menggunakan username dan password |
-| BR-14 | localStorage hanya boleh dipakai untuk menyimpan token sesi |
+| BR-01 | Every user must login using username and password |
+| BR-14 | localStorage may only be used for storing session tokens |
 
 ---
 
-## 10. Traceability
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|

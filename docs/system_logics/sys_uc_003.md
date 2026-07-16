@@ -1,10 +1,10 @@
-# System Logic: UC-003 Buat Disposisi Digital
+# System Logic: UC-003 Create Digital Disposition
 
 Document Version: v1.0
 
 Use Case ID: UC-003
 
-Use Case Name: Buat Disposisi Digital
+Use Case Name: Create Digital Disposition
 
 Status: Draft
 
@@ -16,16 +16,16 @@ Author: System Analyst AI
 
 ## 1. Overview
 
-This document defines the system logic for creating digital disposisi by Kepala Sekolah.
+This document defines the system logic for creating digital dispositions by the Principal.
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Form Buat Disposisi | `/disposisi/buat/:idSurat` | Form disposisi: pilih penerima, instruksi, deadline |
-| Detail Surat | `/surat/:id` | Detail surat dengan tombol "Buat Disposisi" |
+| Disposition Form | `/disposisi/buat/:idSurat` | Disposition form: select recipient, instructions, deadline |
+| Letter Detail | `/surat/:id` | Letter detail with "Create Disposition" button |
 
 ---
 
@@ -33,10 +33,10 @@ This document defines the system logic for creating digital disposisi by Kepala 
 
 | Entity | Table | Description |
 |---|---|---|
-| Disposisi | `disposisi` | Data disposisi surat |
-| Surat Masuk | `surat_masuk` | Surat yang didisposisikan |
-| Pengguna | `pengguna` | Kepala Sekolah (pembuat) & Guru/Staf (penerima) |
-| Notifikasi | `notifikasi` | Notifikasi ke penerima disposisi |
+| Disposition | `disposisi` | Letter disposition data |
+| Incoming Letter | `surat_masuk` | Dispositioned letter |
+| User | `pengguna` | Principal (creator) & Teacher/Staff (recipient) |
+| Notification | `notifikasi` | Notification to disposition recipient |
 
 ---
 
@@ -52,14 +52,14 @@ sequenceDiagram
     actor Guru
 
     Kepala->>Browser: Navigate to /disposisi/buat/:idSurat
-    Browser->>Frontend: Load form disposisi
+    Browser->>Frontend: Load disposition form
     Frontend->>API: GET /api/surat/:id
-    API->>Database: Query surat + status
+    API->>Database: Query letter + status
     API-->>Frontend: 200 OK + SuratMasuk object
-    Frontend-->>Kepala: Display form dengan info surat
+    Frontend-->>Kepala: Display form with letter info
 
-    Kepala->>Frontend: Select penerima (Guru/Staf)
-    Kepala->>Frontend: Fill instruksi
+    Kepala->>Frontend: Select recipient (Teacher/Staff)
+    Kepala->>Frontend: Fill instructions
     Kepala->>Frontend: Set deadline
     Kepala->>Frontend: Click "Buat Disposisi"
 
@@ -92,7 +92,7 @@ sequenceDiagram
 
 ### 5.1 POST /api/disposisi
 
-Buat disposisi baru.
+Create new disposition.
 
 **Request Headers:**
 
@@ -146,7 +146,7 @@ Buat disposisi baru.
       "bidang": "Kurikulum"
     }
   },
-  "message": "Disposisi berhasil dibuat"
+  "message": "Disposition created successfully"
 }
 ```
 
@@ -160,7 +160,7 @@ Buat disposisi baru.
   "errors": [
     {
       "field": "diberikan_kepada",
-      "message": "Penerima harus dipilih"
+      "message": "Recipient must be selected"
     }
   ]
 }
@@ -168,55 +168,65 @@ Buat disposisi baru.
 
 ---
 
-## 6. Data Mapping
+## 6. Data Flow
 
-| Frontend Field | Database Column | Transformation |
+| Frontend Column | Database Column | Transformation |
 |---|---|---|
 | surat_id | surat_id | Direct mapping |
 | diberikan_kepada | diberikan_kepada | Direct mapping |
 | instruksi | instruksi | Direct mapping |
 | deadline | deadline | Direct mapping |
-| - | diberikan_oleh | From JWT token (Kepala) |
-| - | status surat | Updated to 'Didisposisi' |
+| - | diberikan_oleh | From JWT token (Principal) |
+| - | surat_masuk.status | Updated to 'Didisposisi' |
 
 ---
 
 ## 7. Validation Rules
 
-| Field | Rule | Error Message |
+| Column | Rule | Error Message |
 |---|---|---|
-| surat_id | Required, valid UUID | "Surat tidak valid" |
-| diberikan_kepada | Required, must be GURU_STAF | "Penerima harus dipilih" |
-| instruksi | Required, min 10 chars | "Instruksi harus diisi minimal 10 karakter" |
-| deadline | Required, must be future date | "Deadline harus di masa depan" |
+| surat_id | Required, valid UUID | "Invalid letter" |
+| diberikan_kepada | Required, must be GURU_STAF | "Recipient must be selected" |
+| instruksi | Required, min 10 characters | "Instructions must be at least 10 characters" |
+| deadline | Required, must be future date | "Deadline must be in the future" |
 
 ---
 
-## 8. Business Rules Reference
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| Authentication | JWT authentication required |
+| Authorization | Only Principal can create dispositions (BR-04) |
+| Letter Validation | Letter must exist and have "Received" or "Dispositioned" status |
+
+---
+
+## 9. Business Rule References
 
 | Code | Rule |
 |---|---|
-| BR-03 | Status surat berubah: Diterima → Didisposisi |
-| BR-04 | Disposisi hanya dibuat oleh Kepala Sekolah |
-| BR-05 | Satu surat dapat memiliki lebih dari satu disposisi |
-| BR-07 | Notifikasi otomatis dikirim ke Guru/Staf setiap ada disposisi baru |
-| BR-08 | Perubahan status tercatat di tabel status_surat |
-| BR-15 | Perubahan data didorong secara realtime via WebSocket |
+| BR-03 | Letter status changes: Received → Dispositioned |
+| BR-04 | Dispositions can only be created by Principal |
+| BR-05 | One letter can have multiple dispositions |
+| BR-07 | Automatic notification sent to Teacher/Staff whenever new disposition arrives |
+| BR-08 | Status changes recorded in status_surat table |
+| BR-15 | Data changes pushed in realtime via WebSocket |
 
 ---
 
-## 9. WebSocket Events
+## 10. WebSocket Events
 
 | Event | Room | Payload |
 |---|---|---|
-| disposisi:baru | user:{idGuru} | Object Disposisi lengkap |
-| notifikasi:baru | user:{idGuru} | Object Notifikasi |
-| status:update | role:WAKASEK_BIDANG:{bidang} | Status surat terbaru |
-| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Ringkasan dashboard |
+| disposisi:baru | user:{idGuru} | Complete Disposisi object |
+| notifikasi:baru | user:{idGuru} | Notifikasi object |
+| status:update | role:WAKASEK_BIDANG:{bidang} | Latest letter status |
+| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Dashboard summary |
 
 ---
 
-## 10. Traceability
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|
