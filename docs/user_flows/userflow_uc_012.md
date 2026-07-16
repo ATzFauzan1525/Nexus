@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-012  
+Use Case ID: UC-012
+
 Use Case Name: Lacak Surat Publik (Tanpa Login)
 
-Status: Draft  
-Last Updated: 2026-06-28  
+Status: Active
+
+Last Updated: 2026-06-28
+
 Author: System Analyst AI
 
 ---
@@ -71,7 +74,7 @@ Pengirim eksternal membuka URL publik `/lacak` melalui browser (tanpa proses log
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Nomor Surat Kosong
 
@@ -101,7 +104,7 @@ Ketika status surat berubah SAAT halaman `/lacak` masih terbuka.
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Nomor Surat Tidak Ditemukan
 
@@ -166,7 +169,7 @@ Ketika pengirim mencoba mengakses `/surat/:id` langsung.
 
 | Page ID | Page Name |
 |---|---|
-| PAGE-LACAK | Lacak Surat Publik (`/lacak`) |
+| PAGE-018 | Lacak Surat Publik (`/lacak`) |
 
 ---
 
@@ -174,28 +177,28 @@ Ketika pengirim mencoba mengakses `/surat/:id` langsung.
 
 ## 10.1 Data Read
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | SuratMasuk | Mengambil data surat (status, pengirim, perihal, tanggal diterima) — tanpa file scan |
 | StatusSurat | Mengambil timeline perubahan status untuk ditampilkan sebagai stepper |
 
 ## 10.2 Data Created
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data baru yang dibuat |
+| Tidak ada | Tidak ada data baru yang dibuat |
 
 ## 10.3 Data Updated
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang diupdate |
+| Tidak ada | Tidak ada data yang diupdate |
 
 ## 10.4 Data Deleted
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang dihapus |
+| Tidak ada | Tidak ada data yang dihapus |
 
 ---
 
@@ -236,11 +239,11 @@ Ketika pengirim mencoba mengakses `/surat/:id` langsung.
 
 | Page ID |
 |---|
-| PAGE-LACAK |
+| PAGE-018 |
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 | Version | Date | Author | Description |
 |---|---|---|---|

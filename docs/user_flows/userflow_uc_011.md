@@ -2,11 +2,14 @@
 
 Document Version: v0.1
 
-Use Case ID: UC-011  
+Use Case ID: UC-011
+
 Use Case Name: Sinkronisasi Realtime Multi-Aktor
 
-Status: Draft  
-Last Updated: 2026-06-28  
+Status: Active
+
+Last Updated: 2026-06-28
+
 Author: System Analyst AI
 
 ---
@@ -71,7 +74,7 @@ Pengguna berhasil login dan mendapatkan JWT token aktif (UC-001 selesai).
 
 ---
 
-# 5. ALTERNATIVE FLOWS
+# 5. ALTERNATIVE FLOW
 
 ## AF-001: Dua Aktor Mengubah Data yang Sama
 
@@ -102,7 +105,7 @@ Ketika pengguna membuka sistem di lebih dari satu tab atau device secara bersama
 
 ---
 
-# 6. EXCEPTION FLOWS
+# 6. EXCEPTION FLOW
 
 ## EF-001: Koneksi WebSocket Terputus
 
@@ -171,12 +174,12 @@ Ketika koneksi WebSocket berhasil tersambung kembali setelah terputus.
 
 | Page ID | Page Name |
 |---|---|
-| PAGE-DASHBOARD | Dashboard (`/dashboard`) |
-| PAGE-SURAT | Daftar Surat (`/surat`) |
-| PAGE-SURAT-DETAIL | Detail Surat (`/surat/:id`) |
-| PAGE-DISPOSISI-SAYA | Disposisi Saya (`/disposisi/saya`) |
-| PAGE-DISPOSISI | Daftar Disposisi (`/disposisi`) |
-| PAGE-NOTIFICATIONS | Notifikasi (`/notifications`) |
+| PAGE-002 | Dashboard (`/dashboard`) |
+| PAGE-003 | Daftar Surat (`/surat`) |
+| PAGE-005 | Detail Surat (`/surat/:id`) |
+| PAGE-010 | Disposisi Saya (`/disposisi/saya`) |
+| PAGE-006 | Daftar Disposisi (`/disposisi`) |
+| PAGE-012 | Notifikasi (`/notifications`) |
 
 ---
 
@@ -184,27 +187,27 @@ Ketika koneksi WebSocket berhasil tersambung kembali setelah terputus.
 
 ## 10.1 Data Read
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
 | All Entities | Data dibaca dari database Neon PostgreSQL sebagai single source of truth |
 
 ## 10.2 Data Created
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data baru yang dibuat oleh mekanisme sinkronisasi |
+| Tidak ada | Tidak ada data baru yang dibuat oleh mekanisme sinkronisasi |
 
 ## 10.3 Data Updated
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang diupdate oleh mekanisme sinkronisasi |
+| Tidak ada | Tidak ada data yang diupdate oleh mekanisme sinkronisasi |
 
 ## 10.4 Data Deleted
 
-| Entity | Description |
+| Entitas | Description |
 |---|---|
-| None | Tidak ada data yang dihapus oleh mekanisme sinkronisasi |
+| Tidak ada | Tidak ada data yang dihapus oleh mekanisme sinkronisasi |
 
 ---
 
@@ -251,7 +254,7 @@ Ketika koneksi WebSocket berhasil tersambung kembali setelah terputus.
 
 ---
 
-# 15. REVISION HISTORY
+# 14. REVISION HISTORY
 
 | Version | Date | Author | Description |
 |---|---|---|---|
