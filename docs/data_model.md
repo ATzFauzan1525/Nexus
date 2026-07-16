@@ -6,9 +6,9 @@ Project: SiDis — Sistem Informasi Disposisi dan Pelacakan Surat Digital
 
 Product: Web-Based Letter Disposition & Tracking System
 
-Status: Draft
+Status: Validated / Active
 
-Last Updated: 2026-07-10
+Last Updated: 2026-07-16
 
 Author: System Analyst AI
 
@@ -18,9 +18,9 @@ Source: Derived from SRS v1.0 (SoT-1) & `server/config/db-init.js`
 
 ## 1. Overview
 
-This document defines the data model for the SiDis (Sistem Informasi Disposisi dan Pelacakan Surat Digital) system at SMP Muhammadiyah 9 Yogyakarta. The model is derived from the Core Business Objects defined in SRS v1.0 and the actual database initialization script (`db-init.js`).
+Dokumen ini mendefinisikan model data untuk sistem SiDis (Sistem Informasi Disposisi dan Pelacakan Surat Digital) di SMP Muhammadiyah 9 Yogyakarta. Model diturunkan dari Objek Bisnis Inti yang didefinisikan dalam SRS v1.0 dan skrip inisialisasi database yang sebenarnya (`db-init.js`).
 
-The system manages 7 entities covering user management, incoming letter registration, digital disposition, status tracking, team discussion, audit logging, and real-time notifications.
+Sistem mengelola 7 entitas yang mencakup manajemen pengguna, registrasi surat masuk, disposisi digital, pelacakan status, diskusi tim, pencatatan audit, dan notifikasi real-time.
 
 ---
 
@@ -127,199 +127,199 @@ classDiagram
 
 ### 3.1 Pengguna
 
-Represents all system users (Admin TU, Kepala Sekolah, Guru/Staf, Wakasek) who authenticate via JWT and have role-based access.
+Mewakili semua pengguna sistem (Admin TU, Kepala Sekolah, Guru/Staf, Kepala Bidang) yang mengautentikasi melalui JWT dan memiliki akses berdasarkan peran.
 
-| Attribute | Type | Constraint | Description |
+| Attribute | Tipe | Constraint | Deskripsi |
 |---|---|---|---|
-| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| username | VARCHAR(50) | UNIQUE, NOT NULL | Login username |
-| password | VARCHAR(255) | NOT NULL | Hashed password (bcrypt, 10 rounds) |
-| nama_lengkap | VARCHAR(100) | NOT NULL | Full display name |
-| role | ENUM(role_pengguna) | NOT NULL | `ADMIN_TU`, `KEPALA_SEKOLAH`, `GURU_STAF`, `WAKASEK` |
-| bidang | ENUM(bidang_enum) | NULLABLE | `Kurikulum`, `Kesiswaan`, `SaranaPrasarana`, `Humas`, `Keuangan` (null for Admin & Kepsek) |
-| is_active | BOOLEAN | DEFAULT true | Account active status |
-| created_at | TIMESTAMP | DEFAULT NOW() | Account creation timestamp |
-| updated_at | TIMESTAMP | DEFAULT NOW() | Last update timestamp |
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Pengenal unik |
+| username | VARCHAR(50) | UNIQUE, NOT NULL | Username login |
+| password | VARCHAR(255) | NOT NULL | Password ter-hash (bcrypt, 10 rounds) |
+| nama_lengkap | VARCHAR(100) | NOT NULL | Nama tampilan lengkap |
+| role | ENUM(role_pengguna) | NOT NULL | `ADMIN_TU`, `KEPALA_SEKOLAH`, `GURU_STAF`, `KEPALA_BIDANG` |
+| bidang | ENUM(bidang_enum) | NULLABLE | `Kurikulum`, `Kesiswaan`, `SaranaPrasarana`, `Humas`, `Keuangan` (null untuk Admin & Kepsek) |
+| is_active | BOOLEAN | DEFAULT true | Status akun aktif |
+| created_at | TIMESTAMP | DEFAULT NOW() | Waktu pembuatan akun |
+| updated_at | TIMESTAMP | DEFAULT NOW() | Waktu pembaruan terakhir |
 
 ### 3.2 SuratMasuk
 
-Core business entity representing an incoming letter registered by Admin TU. Contains metadata, scanned file (stored as BYTEA in Neon), and current workflow status.
+Entitas bisnis inti yang mewakili surat masuk yang didaftarkan oleh Admin TU. Berisi metadata, file scan (disimpan sebagai BYTEA di Neon), dan status alur kerja saat ini.
 
-| Attribute | Type | Constraint | Description |
+| Attribute | Tipe | Constraint | Deskripsi |
 |---|---|---|---|
-| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| nomor_surat | VARCHAR(50) | UNIQUE, NOT NULL | Letter number from sender |
-| tanggal_diterima | DATE | NOT NULL | Date letter was physically received |
-| pengirim | VARCHAR(200) | NOT NULL | Sender name (institution or individual) |
-| perihal | VARCHAR(300) | NOT NULL | Letter subject |
-| file_scan | VARCHAR(500) | NULLABLE | Original filename for reference |
-| file_data | BYTEA | NULLABLE | Scanned file binary (PDF/JPG/PNG) |
-| file_mime | VARCHAR(50) | NULLABLE | MIME type (application/pdf, image/jpeg, image/png) |
-| status | ENUM(status_surat_enum) | DEFAULT 'Diterima' | Current workflow status |
-| created_by | UUID | FK → Pengguna.id | Admin TU who created the record |
-| created_at | TIMESTAMP | DEFAULT NOW() | Record creation timestamp |
-| updated_at | TIMESTAMP | DEFAULT NOW() | Last update timestamp |
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Pengenal unik |
+| nomor_surat | VARCHAR(50) | UNIQUE, NOT NULL | Nomor surat dari pengirim |
+| tanggal_diterima | DATE | NOT NULL | Tanggal surat diterima secara fisik |
+| pengirim | VARCHAR(200) | NOT NULL | Nama pengirim (lembaga atau individu) |
+| perihal | VARCHAR(300) | NOT NULL | Perihal surat |
+| file_scan | VARCHAR(500) | NULLABLE | Nama file asli untuk referensi |
+| file_data | BYTEA | NULLABLE | Data biner file scan (PDF/JPG/PNG) |
+| file_mime | VARCHAR(50) | NULLABLE | Tipe MIME (application/pdf, image/jpeg, image/png) |
+| status | ENUM(status_surat_enum) | DEFAULT 'Diterima' | Status alur kerja saat ini |
+| created_by | UUID | FK → Pengguna.id | Admin TU yang membuat catatan |
+| created_at | TIMESTAMP | DEFAULT NOW() | Waktu pembuatan catatan |
+| updated_at | TIMESTAMP | DEFAULT NOW() | Waktu pembaruan terakhir |
 
 ### 3.3 Disposisi
 
-Digital disposition record created by Kepala Sekolah, assigning a letter to a specific Guru/Staf with instructions and deadline.
+Catatan disposisi digital yang dibuat oleh Kepala Sekolah, menugaskan surat ke Guru/Staf tertentu dengan instruksi dan tenggat waktu.
 
-| Attribute | Type | Constraint | Description |
+| Attribute | Tipe | Constraint | Deskripsi |
 |---|---|---|---|
-| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| surat_id | UUID | FK → SuratMasuk.id, ON DELETE CASCADE | Referenced incoming letter |
-| diberikan_oleh | UUID | FK → Pengguna.id | Kepala Sekolah who created the disposition |
-| diberikan_kepada | UUID | FK → Pengguna.id | Guru/Staf recipient of the disposition |
-| instruksi | TEXT | NOT NULL | Task instructions |
-| deadline | DATE | NOT NULL | Due date for task completion |
-| created_at | TIMESTAMP | DEFAULT NOW() | Record creation timestamp |
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Pengenal unik |
+| surat_id | UUID | FK → SuratMasuk.id, ON DELETE CASCADE | Surat masuk yang dirujuk |
+| diberikan_oleh | UUID | FK → Pengguna.id | Kepala Sekolah yang membuat disposisi |
+| diberikan_kepada | UUID | FK → Pengguna.id | Penerima disposisi (Guru/Staf) |
+| instruksi | TEXT | NOT NULL | Instruksi tugas |
+| deadline | DATE | NOT NULL | Batas waktu penyelesaian tugas |
+| created_at | TIMESTAMP | DEFAULT NOW() | Waktu pembuatan catatan |
 
 ### 3.4 StatusSurat
 
-Event-sourced status timeline tracking every status change of a letter throughout its lifecycle (Diterima → Didisposisi → Diproses → Selesai).
+Pelacakan timeline status berbasis event-sourced yang mencatat setiap perubahan status surat sepanjang siklus hidupnya (Diterima → Didisposisi → Diproses → Selesai).
 
-| Attribute | Type | Constraint | Description |
+| Attribute | Tipe | Constraint | Deskripsi |
 |---|---|---|---|
-| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| surat_id | UUID | FK → SuratMasuk.id, ON DELETE CASCADE | Referenced incoming letter |
-| status | ENUM(status_surat_enum) | NOT NULL | New status value |
-| catatan | TEXT | NULLABLE | Optional change note |
-| diubah_oleh | UUID | FK → Pengguna.id | User who changed the status |
-| created_at | TIMESTAMP | DEFAULT NOW() | Status change timestamp |
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Pengenal unik |
+| surat_id | UUID | FK → SuratMasuk.id, ON DELETE CASCADE | Surat masuk yang dirujuk |
+| status | ENUM(status_surat_enum) | NOT NULL | Nilai status baru |
+| catatan | TEXT | NULLABLE | Catatan perubahan opsional |
+| diubah_oleh | UUID | FK → Pengguna.id | Pengguna yang mengubah status |
+| created_at | TIMESTAMP | DEFAULT NOW() | Waktu perubahan status |
 
 ### 3.5 Komentar
 
-Team discussion comments on letters, enabling internal collaboration among authorized actors.
+Komentar diskusi tim pada surat, memungkinkan kolaborasi internal antar aktor yang berwenang.
 
-| Attribute | Type | Constraint | Description |
+| Attribute | Tipe | Constraint | Deskripsi |
 |---|---|---|---|
-| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| surat_id | UUID | FK → SuratMasuk.id, ON DELETE CASCADE | Referenced incoming letter |
-| user_id | UUID | FK → Pengguna.id | Author of the comment |
-| isi | TEXT | NOT NULL | Comment content |
-| created_at | TIMESTAMP | DEFAULT NOW() | Comment creation timestamp |
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Pengenal unik |
+| surat_id | UUID | FK → SuratMasuk.id, ON DELETE CASCADE | Surat masuk yang dirujuk |
+| user_id | UUID | FK → Pengguna.id | Penulis komentar |
+| isi | TEXT | NOT NULL | Isi komentar |
+| created_at | TIMESTAMP | DEFAULT NOW() | Waktu pembuatan komentar |
 
 ### 3.6 AuditLog
 
-Immutable audit trail recording all system changes (CREATE, UPDATE_STATUS, DELETE) for compliance and traceability.
+Jejak audit yang tidak dapat diubah yang mencatat semua perubahan sistem (CREATE, UPDATE_STATUS, DELETE) untuk kepatuhan dan pelacakan.
 
-| Attribute | Type | Constraint | Description |
+| Attribute | Tipe | Constraint | Deskripsi |
 |---|---|---|---|
-| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| user_id | UUID | FK → Pengguna.id | User who performed the action |
-| aksi | VARCHAR(100) | NOT NULL | Action type (CREATE, UPDATE_STATUS, DELETE) |
-| entitas | VARCHAR(50) | NOT NULL | Affected entity (surat_masuk, disposisi, pengguna) |
-| entitas_id | UUID | NULLABLE | ID of affected record |
-| detail | TEXT | NULLABLE | Human-readable change description |
-| ip_address | VARCHAR(50) | NULLABLE | User IP address |
-| created_at | TIMESTAMP | DEFAULT NOW() | Action timestamp |
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Pengenal unik |
+| user_id | UUID | FK → Pengguna.id | Pengguna yang melakukan aksi |
+| aksi | VARCHAR(100) | NOT NULL | Tipe aksi (CREATE, UPDATE_STATUS, DELETE) |
+| entitas | VARCHAR(50) | NOT NULL | Entitas yang terpengaruh (surat_masuk, disposisi, pengguna) |
+| entitas_id | UUID | NULLABLE | ID catatan yang terpengaruh |
+| detail | TEXT | NULLABLE | Deskripsi perubahan yang dapat dibaca manusia |
+| ip_address | VARCHAR(50) | NULLABLE | Alamat IP pengguna |
+| created_at | TIMESTAMP | DEFAULT NOW() | Waktu aksi |
 
 ### 3.7 Notifikasi
 
-Internal push notifications delivered via WebSocket, informing users of relevant events (new letter, new disposition, status update).
+Notifikasi push internal yang dikirim melalui WebSocket, memberi tahu pengguna tentang peristiwa yang relevan (surat baru, disposisi baru, pembaruan status).
 
-| Attribute | Type | Constraint | Description |
+| Attribute | Tipe | Constraint | Deskripsi |
 |---|---|---|---|
-| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| user_id | UUID | FK → Pengguna.id, ON DELETE CASCADE | Notification recipient |
-| judul | VARCHAR(200) | NOT NULL | Notification title |
-| pesan | TEXT | NOT NULL | Notification message body |
-| tipe | VARCHAR(50) | NOT NULL | Type (surat_baru, disposisi_baru, status_update) |
-| reference_id | UUID | NULLABLE | Related record ID for deep linking |
-| dibaca | BOOLEAN | DEFAULT false | Read status |
-| created_at | TIMESTAMP | DEFAULT NOW() | Notification creation timestamp |
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Pengenal unik |
+| user_id | UUID | FK → Pengguna.id, ON DELETE CASCADE | Penerima notifikasi |
+| judul | VARCHAR(200) | NOT NULL | Judul notifikasi |
+| pesan | TEXT | NOT NULL | Isi pesan notifikasi |
+| tipe | VARCHAR(50) | NOT NULL | Tipe (surat_baru, disposisi_baru, status_update) |
+| reference_id | UUID | NULLABLE | ID catatan terkait untuk deep linking |
+| dibaca | BOOLEAN | DEFAULT false | Status sudah dibaca |
+| created_at | TIMESTAMP | DEFAULT NOW() | Waktu pembuatan notifikasi |
 
 ---
 
 ## 4. Relationships
 
-| Relationship | Type | Cardinality | Description |
+| Relasi | Tipe | Cardinality | Deskripsi |
 |---|---|---|---|
-| Pengguna → SuratMasuk | One-to-Many | 1:N | One Admin TU can create many incoming letter records |
-| Pengguna → Disposisi (diberikan_oleh) | One-to-Many | 1:N | One Kepala Sekolah can create many dispositions |
-| Pengguna → Disposisi (diberikan_kepada) | One-to-Many | 1:N | One Guru/Staf can receive many dispositions |
-| Pengguna → StatusSurat | One-to-Many | 1:N | One user can record many status changes |
-| Pengguna → Komentar | One-to-Many | 1:N | One user can write many comments |
-| Pengguna → AuditLog | One-to-Many | 1:N | One user can generate many audit log entries |
-| Pengguna → Notifikasi | One-to-Many | 1:N | One user can receive many notifications |
-| SuratMasuk → Disposisi | One-to-Many | 1:N | One letter can have many dispositions (BR-05) |
-| SuratMasuk → StatusSurat | One-to-Many | 1:N | One letter has many status timeline entries (BR-08) |
-| SuratMasuk → Komentar | One-to-Many | 1:N | One letter can have many comments |
+| Pengguna → SuratMasuk | One-to-Many | 1:N | Satu Admin TU dapat membuat banyak catatan surat masuk |
+| Pengguna → Disposisi (diberikan_oleh) | One-to-Many | 1:N | Satu Kepala Sekolah dapat membuat banyak disposisi |
+| Pengguna → Disposisi (diberikan_kepada) | One-to-Many | 1:N | Satu Guru/Staf dapat menerima banyak disposisi |
+| Pengguna → StatusSurat | One-to-Many | 1:N | Satu pengguna dapat mencatat banyak perubahan status |
+| Pengguna → Komentar | One-to-Many | 1:N | Satu pengguna dapat menulis banyak komentar |
+| Pengguna → AuditLog | One-to-Many | 1:N | Satu pengguna dapat menghasilkan banyak entri audit log |
+| Pengguna → Notifikasi | One-to-Many | 1:N | Satu pengguna dapat menerima banyak notifikasi |
+| SuratMasuk → Disposisi | One-to-Many | 1:N | Satu surat dapat memiliki banyak disposisi (BR-05) |
+| SuratMasuk → StatusSurat | One-to-Many | 1:N | Satu surat memiliki banyak entri timeline status (BR-08) |
+| SuratMasuk → Komentar | One-to-Many | 1:N | Satu surat dapat memiliki banyak komentar |
 
 ---
 
 ## 5. Business Rules
 
-### 5.1 User Rules
+### 5.1 Aturan Pengguna
 
-- Username must be unique across the system (SRS Section 5).
-- Password must be hashed using bcrypt with 10 salt rounds (`db-init.js`).
-- Only Admin TU can create user accounts — no public registration (BR-02).
-- User accounts can be deactivated (is_active = false) but not physically deleted (SRS Section 5).
-- Bidang is required for GURU_STAF and WAKASEK roles; null for ADMIN_TU and KEPALA_SEKOLAH.
+- Username harus unik di seluruh sistem (SRS Bagian 5).
+- Password harus di-hash menggunakan bcrypt dengan 10 salt rounds (`db-init.js`).
+- Hanya Admin TU yang dapat membuat akun pengguna — tidak ada pendaftaran publik (BR-02).
+- Akun pengguna dapat dinonaktifkan (is_active = false) tetapi tidak dihapus secara fisik (SRS Bagian 5).
+- Bidang wajib diisi untuk role GURU_STAF dan KEPALA_BIDANG; null untuk ADMIN_TU dan KEPALA_SEKOLAH.
 
-### 5.2 Letter Rules
+### 5.2 Aturan Surat
 
-- Letter number (nomor_surat) must be unique; trimmed before storage (BR-21).
-- Status flow is sequential: `Diterima` → `Didisposisi` → `Diproses` → `Selesai`. No skipping or reversal (BR-03).
-- File scan must be PDF, JPG, or PNG format, max 10 MB (BR-12).
-- File data is stored as BYTEA in Neon database, not filesystem (BR-20).
-- Letters with status `Selesai` cannot have their status changed again (BR-13).
+- Nomor surat (nomor_surat) harus unik; dipotong spasi sebelum penyimpanan (BR-21).
+- Alur status bersifat sekuensial: `Diterima` → `Didisposisi` → `Diproses` → `Selesai`. Tidak ada pelompatan atau pembalikan (BR-03).
+- File scan harus berformat PDF, JPG, atau PNG, maksimal 10 MB (BR-12).
+- Data file disimpan sebagai BYTEA di database Neon, bukan di file sistem (BR-20).
+- Surat dengan status `Selesai` tidak dapat mengubah status lagi (BR-13).
 
-### 5.3 Disposition Rules
+### 5.3 Aturan Disposisi
 
-- Only Kepala Sekolah can create dispositions (BR-04).
-- A disposition must include: recipient, instructions, and deadline (BR-04).
-- One letter can have multiple dispositions to different recipients (BR-05).
-- Disposition recipient must be an active GURU_STAF account.
+- Hanya Kepala Sekolah yang dapat membuat disposisi (BR-04).
+- Disposisi harus mencakup: penerima, instruksi, dan tenggat waktu (BR-04).
+- Satu surat dapat memiliki banyak disposisi ke penerima yang berbeda (BR-05).
+- Penerima disposisi harus berupa akun GURU_STAF yang aktif.
 
-### 5.4 Status Tracking Rules
+### 5.4 Aturan Pelacakan Status
 
-- Every status change must be recorded as a new entry in status_surat table (BR-08, event sourcing).
-- Status_surat records are immutable — once created, they cannot be modified or deleted.
+- Setiap perubahan status harus dicatat sebagai entri baru di tabel status_surat (BR-08, event sourcing).
+- Catatan status_surat bersifat tidak dapat diubah — begitu dibuat, tidak dapat dimodifikasi atau dihapus.
 
-### 5.5 Notification Rules
+### 5.5 Aturan Notifikasi
 
-- Kepala Sekolah receives notification for every new incoming letter (BR-06).
-- Guru/Staf receives notification for every new disposition assigned to them (BR-07).
-- Notifications are delivered via WebSocket in real-time (BR-15).
+- Kepala Sekolah menerima notifikasi untuk setiap surat masuk baru (BR-06).
+- Guru/Staf menerima notifikasi untuk setiap disposisi baru yang ditugaskan kepada mereka (BR-07).
+- Notifikasi dikirim melalui WebSocket secara real-time (BR-15).
 
-### 5.6 Audit & Data Retention
+### 5.6 Audit & Penyimpanan Data
 
-- All CREATE, UPDATE_STATUS, and DELETE actions on surat_masuk, disposisi, and pengguna are logged in audit_log (BR-19).
-- Audit logs are viewable only by ADMIN_TU and KEPALA_SEKOLAH (BR-19).
-- All transaction data is stored permanently in Neon PostgreSQL (BR-14).
+- Semua aksi CREATE, UPDATE_STATUS, dan DELETE pada surat_masuk, disposisi, dan pengguna dicatat di audit_log (BR-19).
+- Log audit hanya dapat dilihat oleh ADMIN_TU dan KEPALA_SEKOLAH (BR-19).
+- Semua data transaksi disimpan secara permanen di Neon PostgreSQL (BR-14).
 
 ---
 
 ## 6. Indexes
 
-| Table | Index | Columns | Purpose |
+| Tabel | Index | Kolom | Tujuan |
 |---|---|---|---|
-| pengguna | idx_pengguna_username | username | Fast login lookup by username |
-| pengguna | idx_pengguna_role | role | Quick role-based queries |
-| surat_masuk | idx_surat_nomor | nomor_surat | Fast lookup by letter number |
-| surat_masuk | idx_surat_tanggal | tanggal_diterima | Date-range filtering for reports |
-| surat_masuk | idx_surat_status | status | Status-based filtering |
-| surat_masuk | idx_surat_pengirim | pengirim | Search by sender name |
-| surat_masuk | idx_surat_perihal | perihal | Search by subject |
-| disposisi | idx_disposisi_surat | surat_id | Fast lookup of dispositions by letter |
-| disposisi | idx_disposisi_penerima | diberikan_kepada | Fast lookup of dispositions by recipient |
-| status_surat | idx_status_surat | surat_id | Fast timeline queries by letter |
-| notifikasi | idx_notifikasi_user | user_id, dibaca | Unread notification queries |
-| audit_log | idx_audit_entitas | entitas, entitas_id | Entity-level audit trail queries |
+| pengguna | idx_pengguna_username | username | Pencarian login cepat berdasarkan username |
+| pengguna | idx_pengguna_role | role | Query cepat berdasarkan peran |
+| surat_masuk | idx_surat_nomor | nomor_surat | Pencarian cepat berdasarkan nomor surat |
+| surat_masuk | idx_surat_tanggal | tanggal_diterima | Filtering rentang tanggal untuk laporan |
+| surat_masuk | idx_surat_status | status | Filtering berdasarkan status |
+| surat_masuk | idx_surat_pengirim | pengirim | Pencarian berdasarkan nama pengirim |
+| surat_masuk | idx_surat_perihal | perihal | Pencarian berdasarkan perihal |
+| disposisi | idx_disposisi_surat | surat_id | Pencarian cepat disposisi berdasarkan surat |
+| disposisi | idx_disposisi_penerima | diberikan_kepada | Pencarian cepat disposisi berdasarkan penerima |
+| status_surat | idx_status_surat | surat_id | Query timeline cepat berdasarkan surat |
+| notifikasi | idx_notifikasi_user | user_id, dibaca | Query notifikasi belum dibaca |
+| audit_log | idx_audit_entitas | entitas, entitas_id | Query jejak audit tingkat entitas |
 
 ---
 
 ## 7. SQL DDL (PostgreSQL / Neon)
 
 ```sql
--- Custom ENUM types
-CREATE TYPE role_pengguna AS ENUM ('ADMIN_TU', 'KEPALA_SEKOLAH', 'GURU_STAF', 'WAKASEK');
+-- Tipe ENUM kustom
+CREATE TYPE role_pengguna AS ENUM ('ADMIN_TU', 'KEPALA_SEKOLAH', 'GURU_STAF', 'KEPALA_BIDANG');
 CREATE TYPE status_surat_enum AS ENUM ('Diterima', 'Didisposisi', 'Diproses', 'Selesai');
 CREATE TYPE bidang_enum AS ENUM ('Kurikulum', 'Kesiswaan', 'SaranaPrasarana', 'Humas', 'Keuangan');
 
--- Table: pengguna
+-- Tabel: pengguna
 CREATE TABLE pengguna (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   username VARCHAR(50) UNIQUE NOT NULL,
@@ -332,7 +332,7 @@ CREATE TABLE pengguna (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: surat_masuk
+-- Tabel: surat_masuk
 CREATE TABLE surat_masuk (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   nomor_surat VARCHAR(50) UNIQUE NOT NULL,
@@ -348,7 +348,7 @@ CREATE TABLE surat_masuk (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: disposisi
+-- Tabel: disposisi
 CREATE TABLE disposisi (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   surat_id UUID REFERENCES surat_masuk(id) ON DELETE CASCADE,
@@ -359,7 +359,7 @@ CREATE TABLE disposisi (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: status_surat
+-- Tabel: status_surat
 CREATE TABLE status_surat (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   surat_id UUID REFERENCES surat_masuk(id) ON DELETE CASCADE,
@@ -369,7 +369,7 @@ CREATE TABLE status_surat (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: komentar
+-- Tabel: komentar
 CREATE TABLE komentar (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   surat_id UUID REFERENCES surat_masuk(id) ON DELETE CASCADE,
@@ -378,7 +378,7 @@ CREATE TABLE komentar (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: audit_log
+-- Tabel: audit_log
 CREATE TABLE audit_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES pengguna(id),
@@ -390,7 +390,7 @@ CREATE TABLE audit_log (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: notifikasi
+-- Tabel: notifikasi
 CREATE TABLE notifikasi (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES pengguna(id) ON DELETE CASCADE,
@@ -421,12 +421,12 @@ CREATE INDEX idx_audit_entitas ON audit_log(entitas, entitas_id);
 
 ## 8. Traceability
 
-| Entity | SRS Reference | Feature |
+| Entitas | Referensi SRS | Fitur |
 |---|---|---|
-| Pengguna | Section 5 (Schema), BR-01, BR-02 | F-01 (Login/Logout), F-02 (User Management) |
-| SuratMasuk | Section 5 (Schema), BR-03, BR-12, BR-20, BR-21 | F-03 (Input Surat Masuk) |
-| Disposisi | Section 5 (Schema), BR-04, BR-05 | F-04 (Disposisi Digital) |
-| StatusSurat | Section 5 (Schema), BR-08, BR-13 | F-05 (Update Status), F-08 (Timeline) |
-| Komentar | Section 5 (Schema), BR-18 | F-13 (Komentar Diskusi) |
-| AuditLog | Section 5 (Schema), BR-19 | F-15 (Audit Log) |
-| Notifikasi | Section 5 (Schema), BR-06, BR-07 | F-06 (Notifikasi Otomatis) |
+| Pengguna | Bagian 5 (Skema), BR-01, BR-02 | F-01 (Login/Logout), F-02 (Manajemen Pengguna) |
+| SuratMasuk | Bagian 5 (Skema), BR-03, BR-12, BR-20, BR-21 | F-03 (Input Surat Masuk) |
+| Disposisi | Bagian 5 (Skema), BR-04, BR-05 | F-04 (Disposisi Digital) |
+| StatusSurat | Bagian 5 (Skema), BR-08, BR-13 | F-05 (Update Status), F-08 (Timeline) |
+| Komentar | Bagian 5 (Skema), BR-18 | F-13 (Komentar Diskusi) |
+| AuditLog | Bagian 5 (Skema), BR-19 | F-15 (Audit Log) |
+| Notifikasi | Bagian 5 (Skema), BR-06, BR-07 | F-06 (Notifikasi Otomatis) |
