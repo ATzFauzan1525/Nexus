@@ -1,10 +1,10 @@
-# System Logic: UC-009 Kelola Akun Pengguna
+# System Logic: UC-009 Manage User Accounts
 
 Document Version: v1.0
 
 Use Case ID: UC-009
 
-Use Case Name: Kelola Akun Pengguna
+Use Case Name: Manage User Accounts
 
 Status: Draft
 
@@ -20,13 +20,13 @@ This document defines the system logic for managing user accounts (CRUD) by Admi
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Daftar Pengguna | `/pengguna` | Tabel daftar akun pengguna |
-| Tambah Pengguna | `/pengguna/tambah` | Form tambah akun baru |
-| Edit Pengguna | `/pengguna/:id/edit` | Form ubah data akun |
+| User List | `/pengguna` | User account list table |
+| Add User | `/pengguna/tambah` | New account form |
+| Edit User | `/pengguna/:id/edit` | Account edit form |
 
 ---
 
@@ -34,15 +34,59 @@ This document defines the system logic for managing user accounts (CRUD) by Admi
 
 | Entity | Table | Description |
 |---|---|---|
-| Pengguna | `pengguna` | Data akun pengguna |
+| User | `pengguna` | User account data |
 
 ---
 
-## 4. API Contract
+## 4. Sequence Diagram
 
-### 4.1 GET /api/pengguna
+```mermaid
+sequenceDiagram
+    participant AU as Admin TU
+    participant FE as Frontend
+    participant BE as Backend API
+    participant DB as Database
 
-Daftar seluruh pengguna.
+    AU->>FE: Open user list page
+    FE->>BE: GET /api/pengguna
+    BE->>DB: SELECT * FROM pengguna
+    DB-->>BE: User list
+    BE-->>FE: 200 OK + data[]
+    FE-->>AU: Display user table
+
+    AU->>FE: Click "Tambah Pengguna"
+    FE->>AU: Display form
+    AU->>FE: Fill form & submit
+    FE->>BE: POST /api/pengguna
+    BE->>DB: INSERT INTO pengguna
+    DB-->>BE: Success
+    BE-->>FE: 201 Created
+    FE-->>AU: User added successfully
+
+    AU->>FE: Click "Edit" on user
+    FE->>BE: PUT /api/pengguna/:id
+    BE->>DB: UPDATE pengguna SET ...
+    DB-->>BE: Success
+    BE-->>FE: 200 OK
+    FE-->>AU: User updated successfully
+
+    AU->>FE: Click "Hapus" on user
+    FE->>AU: Delete confirmation
+    AU->>FE: Confirm
+    FE->>BE: DELETE /api/pengguna/:id
+    BE->>DB: DELETE FROM pengguna WHERE id = :id
+    DB-->>BE: Success
+    BE-->>FE: 200 OK
+    FE-->>AU: User deleted successfully
+```
+
+---
+
+## 5. API Contract
+
+### 5.1 GET /api/pengguna
+
+List all users.
 
 **Success Response (200 OK):**
 
@@ -66,9 +110,9 @@ Daftar seluruh pengguna.
 
 ---
 
-### 4.2 POST /api/pengguna
+### 5.2 POST /api/pengguna
 
-Tambah pengguna baru.
+Add new user.
 
 **Request Body:**
 
@@ -95,15 +139,15 @@ Tambah pengguna baru.
     "bidang": "Kurikulum",
     "is_active": true
   },
-  "message": "Pengguna berhasil ditambahkan"
+  "message": "User added successfully"
 }
 ```
 
 ---
 
-### 4.3 PUT /api/pengguna/:id
+### 5.3 PUT /api/pengguna/:id
 
-Update data pengguna.
+Update user data.
 
 **Request Body:**
 
@@ -122,15 +166,15 @@ Update data pengguna.
 {
   "success": true,
   "data": null,
-  "message": "Pengguna berhasil diupdate"
+  "message": "User updated successfully"
 }
 ```
 
 ---
 
-### 4.4 DELETE /api/pengguna/:id
+### 5.4 DELETE /api/pengguna/:id
 
-Hapus pengguna.
+Delete user.
 
 **Success Response (200 OK):**
 
@@ -138,23 +182,53 @@ Hapus pengguna.
 {
   "success": true,
   "data": null,
-  "message": "Pengguna berhasil dihapus"
+  "message": "User deleted successfully"
 }
 ```
 
 ---
 
-## 5. Business Rules Reference
+## 6. Data Flow
 
-| Code | Rule |
-|---|---|
-| BR-02 | Akun hanya dapat dibuat oleh Admin TU |
-| BR-10 | Wakasek hanya dapat melihat surat yang berhubungan dengan bidangnya |
-| BR-11 | Guru/Staf hanya dapat melihat surat yang didisposisikan kepadanya |
+1. Admin TU opens `/pengguna` page, frontend calls `GET /api/pengguna`.
+2. Backend fetches all user data from `pengguna` table and returns list.
+3. To add user, Admin TU fills form → frontend sends `POST /api/pengguna` → backend validates data → inserts into `pengguna` table → returns newly created data.
+4. To edit, Admin TU changes data on form → frontend sends `PUT /api/pengguna/:id` → backend validates and updates `pengguna` table.
+5. To delete, Admin TU confirms deletion → frontend sends `DELETE /api/pengguna/:id` → backend deletes record from `pengguna` table.
+6. All CRUD operations can only be accessed by `ADMIN_TU` role.
 
 ---
 
-## 6. Traceability
+## 7. Validation Rules
+
+| Column | Rule |
+|---|---|
+| `username` | Required, min 3 characters, unique |
+| `password` | Required, min 6 characters |
+| `nama_lengkap` | Required |
+| `role` | Must be one of: `ADMIN_TU`, `KEPALA_SEKOLAH`, `GURU_STAF`, `WAKASEK` |
+| `bidang` | Required if role is `GURU_STAF` or `WAKASEK` |
+
+---
+
+## 8. Security Rules
+
+- JWT authentication required for all endpoints
+- Only Admin TU can manage users (BR-02)
+
+---
+
+## 9. Business Rule References
+
+| Code | Rule |
+|---|---|
+| BR-02 | Accounts can only be created by Admin TU |
+| BR-10 | Vice Principal can only see letters related to their department |
+| BR-11 | Teacher/Staff can only see letters disposed to them |
+
+---
+
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|
