@@ -33,22 +33,36 @@ Sistem informasi persuratan digital untuk mendigitalisasi proses pencatatan sura
 ## Project Structure
 
 ```
-SiDs/
-├── server/              # Backend (Express + Socket.io)
-│   ├── config/          # DB config & init
-│   ├── controllers/     # Route handlers
-│   ├── middleware/       # Auth, upload
-│   ├── routes/          # API routes
-│   └── socket/          # Socket.io server
-├── src/                 # Frontend (React + Vite)
-│   ├── pages/           # Page components
-│   ├── components/      # UI components
-│   ├── context/         # Auth context + WebSocket
-│   └── lib/             # API client
-├── server.js            # Unified entry point
-├── vite.config.js       # Vite config
-├── .env                 # Config (DATABASE_URL Neon)
-└── uploads/             # File uploads
+SiDis/
+├── docs/                      # Documentation (SoT)
+│   ├── srs.md                 # Software Requirement Specification
+│   ├── information_architecture.md
+│   ├── design_system.md
+│   ├── data_model.md
+│   ├── analisis_kebutuhan/    # Dokumen Analisis Kebutuhan
+│   ├── data_observasi/        # Data wawancara & observasi
+│   ├── user_flows/            # 16 use case flows
+│   └── system_logics/         # 16 UCIC files
+├── public/                    # Static assets
+│   └── logo.png               # Logo aplikasi
+├── scripts/                   # Utility scripts
+│   └── kill-port.js           # Cross-platform port killer
+├── server/                    # Backend (Express + Socket.io)
+│   ├── config/                # DB config, init, migrate
+│   ├── controllers/           # Route handlers
+│   ├── helpers/               # Audit log helper
+│   ├── middleware/             # Auth, upload
+│   ├── routes/                # API routes
+│   └── socket/                # Socket.io server
+├── src/                       # Frontend (React + Vite)
+│   ├── pages/                 # Page components (18 pages)
+│   ├── components/            # UI components
+│   ├── context/               # Auth context + WebSocket
+│   └── lib/                   # API client
+├── .env                       # Config (DATABASE_URL, JWT_SECRET)
+├── server.js                  # Unified entry point
+├── package.json
+└── vercel.json                # Vercel SPA config
 ```
 
 ## Setup
@@ -169,5 +183,8 @@ Semua detail konfigurasi, spesifikasi, dan business rules ada di `docs/`:
 - `docs/srs.md` — Scope, fitur, business rules, NFR, koneksi database
 - `docs/information_architecture.md` — Routes, layout, WebSocket channels
 - `docs/design_system.md` — Colors, typography, components
+- `docs/data_model.md` — Database schema, ERD, indexes
+- `docs/analisis_kebutuhan/` — Dokumen Analisis Kebutuhan (Fase 1)
+- `docs/data_observasi/` — Data wawancara, transkrip, bukti foto
 - `docs/user_flows/` — 16 use case flows
 - `docs/system_logics/` — API contracts, sequence diagrams, data flow
