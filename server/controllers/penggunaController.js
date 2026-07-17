@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 exports.getAll = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, username, nama_lengkap, role, bidang, is_active, created_at FROM pengguna ORDER BY created_at DESC'
+      'SELECT id, username, nama_lengkap, role, bidang, created_at FROM pengguna ORDER BY created_at DESC'
     );
     res.json(result.rows);
   } catch (err) {
@@ -16,7 +16,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, username, nama_lengkap, role, bidang, is_active, created_at FROM pengguna WHERE id = $1',
+      'SELECT id, username, nama_lengkap, role, bidang, created_at FROM pengguna WHERE id = $1',
       [req.params.id]
     );
     if (result.rows.length === 0) {
@@ -45,7 +45,7 @@ exports.create = async (req, res) => {
     const result = await pool.query(
       `INSERT INTO pengguna (username, password, nama_lengkap, role, bidang)
        VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, username, nama_lengkap, role, bidang, is_active, created_at`,
+       RETURNING id, username, nama_lengkap, role, bidang, created_at`,
       [username, hashedPassword, nama_lengkap, role, bidang || null]
     );
     res.status(201).json(result.rows[0]);
@@ -56,7 +56,7 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const { nama_lengkap, role, bidang, is_active } = req.body;
+  const { nama_lengkap, role, bidang } = req.body;
   const { id } = req.params;
 
   try {
@@ -66,9 +66,9 @@ exports.update = async (req, res) => {
 
     const result = await pool.query(
       `UPDATE pengguna SET nama_lengkap = COALESCE($1, nama_lengkap), role = COALESCE($2, role),
-       bidang = $3, is_active = COALESCE($4, is_active), updated_at = NOW()
-       WHERE id = $5 RETURNING id, username, nama_lengkap, role, bidang, is_active, created_at`,
-      [nama_lengkap, role, bidang, is_active, id]
+       bidang = $3, updated_at = NOW()
+       WHERE id = $4 RETURNING id, username, nama_lengkap, role, bidang, created_at`,
+      [nama_lengkap, role, bidang, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
@@ -112,7 +112,7 @@ exports.delete = async (req, res) => {
     }
 
     const result = await pool.query(
-      'UPDATE pengguna SET is_active = false, updated_at = NOW() WHERE id = $1 RETURNING id',
+      'DELETE FROM pengguna WHERE id = $1 RETURNING id',
       [id]
     );
     if (result.rows.length === 0) {
@@ -120,6 +120,7 @@ exports.delete = async (req, res) => {
     }
     res.json({ message: 'Pengguna berhasil dihapus' });
   } catch (err) {
+    console.error('Delete user error:', err);
     res.status(500).json({ message: 'Terjadi kesalahan server' });
   }
 };
@@ -127,7 +128,7 @@ exports.delete = async (req, res) => {
 exports.getGuruStaf = async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, username, nama_lengkap, role, bidang FROM pengguna WHERE role = 'GURU_STAF' AND is_active = true ORDER BY nama_lengkap"
+      "SELECT id, username, nama_lengkap, role, bidang FROM pengguna WHERE role = 'GURU_STAF' ORDER BY nama_lengkap"
     );
     res.json(result.rows);
   } catch (err) {

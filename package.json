@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "lsof -ti :3000 | xargs kill -9 2>/dev/null || true; sleep 1; node server.js",
-    "dev:reset": "lsof -ti :3000 | xargs kill -9 2>/dev/null || true; sleep 1; node server/config/db-init.js && node server.js",
+    "dev": "node scripts/kill-port.js 3000 && node server.js",
+    "dev:reset": "node scripts/kill-port.js 3000 && node server/config/db-init.js && node server.js",
     "dev:client": "vite",
     "build": "vite build",
     "start": "NODE_ENV=production node server.js",
-    "db:init": "node server/config/db-init.js"
+    "db:init": "node server/config/db-init.js",
+    "db:migrate": "node server/config/db-migrate.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

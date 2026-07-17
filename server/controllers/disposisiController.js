@@ -108,9 +108,20 @@ exports.getById = async (req, res) => {
       [disposisi.surat_id]
     );
 
+    // Get timeline from status_surat
+    const timelineResult = await pool.query(
+      `SELECT ss.*, p.nama_lengkap as diubah_oleh_nama
+       FROM status_surat ss
+       LEFT JOIN pengguna p ON ss.diubah_oleh = p.id
+       WHERE ss.surat_id = $1
+       ORDER BY ss.created_at ASC`,
+      [disposisi.surat_id]
+    );
+
     res.json({
       ...disposisi,
       status_terakhir: statusResult.rows[0] || null,
+      timeline: timelineResult.rows,
     });
   } catch (err) {
     res.status(500).json({ message: 'Terjadi kesalahan server' });

@@ -306,14 +306,23 @@ exports.trackByNomor = async (req, res) => {
       posisiSaatIni = 'Menunggu Disposisi Kepala Sekolah';
     }
 
-    // Get timeline (status history)
+    // Get timeline (status history) — show role title + bidang, not person names
     const timelineResult = await pool.query(
       `SELECT ss.status, ss.catatan, ss.created_at,
               CASE
+                WHEN ss.status = 'Didisposisi' THEN
+                  'Kepala Sekolah → ' || COALESCE(
+                    (SELECT pp.bidang::text FROM disposisi d
+                     JOIN pengguna pp ON d.diberikan_kepada = pp.id
+                     WHERE d.surat_id = ss.surat_id ORDER BY d.created_at DESC LIMIT 1),
+                    'Guru/Staf'
+                  )
+                WHEN ss.status = 'Diproses' THEN COALESCE(p.bidang::text, 'Guru/Staf')
+                WHEN ss.status = 'Selesai' THEN COALESCE(p.bidang::text, 'Guru/Staf')
                 WHEN p.role = 'KEPALA_SEKOLAH' THEN 'Kepala Sekolah'
                 WHEN p.role = 'ADMIN_TU' THEN 'Admin TU'
                 WHEN p.role = 'WAKASEK' THEN 'Wakasek ' || COALESCE(p.bidang::text, '')
-                ELSE 'Guru/Staf'
+                ELSE COALESCE(p.bidang::text, 'Guru/Staf')
               END as diubah_oleh_nama
        FROM status_surat ss LEFT JOIN pengguna p ON ss.diubah_oleh = p.id
        WHERE ss.surat_id = $1 ORDER BY ss.created_at ASC`,
