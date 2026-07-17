@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS pengguna (
   password VARCHAR(255) NOT NULL,
   nama_lengkap VARCHAR(100) NOT NULL,
   role role_pengguna NOT NULL,
-  bidang bidang_ENUM,
+  bidang bidang_enum,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS surat_masuk (
   file_data BYTEA,
   file_mime VARCHAR(50),
   status status_surat_enum DEFAULT 'Diterima',
-  created_by UUID REFERENCES pengguna(id),
+  created_by UUID REFERENCES pengguna(id) ON DELETE SET NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS surat_masuk (
 CREATE TABLE IF NOT EXISTS disposisi (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   surat_id UUID REFERENCES surat_masuk(id) ON DELETE CASCADE,
-  diberikan_oleh UUID REFERENCES pengguna(id),
-  diberikan_kepada UUID REFERENCES pengguna(id),
+  diberikan_oleh UUID REFERENCES pengguna(id) ON DELETE SET NULL,
+  diberikan_kepada UUID REFERENCES pengguna(id) ON DELETE SET NULL,
   instruksi TEXT NOT NULL,
   deadline DATE NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
@@ -63,21 +63,21 @@ CREATE TABLE IF NOT EXISTS status_surat (
   surat_id UUID REFERENCES surat_masuk(id) ON DELETE CASCADE,
   status status_surat_enum NOT NULL,
   catatan TEXT,
-  diubah_oleh UUID REFERENCES pengguna(id),
+  diubah_oleh UUID REFERENCES pengguna(id) ON DELETE SET NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS komentar (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   surat_id UUID REFERENCES surat_masuk(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES pengguna(id),
+  user_id UUID REFERENCES pengguna(id) ON DELETE SET NULL,
   isi TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS audit_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES pengguna(id),
+  user_id UUID REFERENCES pengguna(id) ON DELETE SET NULL,
   aksi VARCHAR(100) NOT NULL,
   entitas VARCHAR(50) NOT NULL,
   entitas_id UUID,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
 
 CREATE TABLE IF NOT EXISTS notifikasi (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES pengguna(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES pengguna(id) ON DELETE SET NULL,
   judul VARCHAR(200) NOT NULL,
   pesan TEXT NOT NULL,
   tipe VARCHAR(50) NOT NULL,
@@ -96,6 +96,38 @@ CREATE TABLE IF NOT EXISTS notifikasi (
   dibaca BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_pengguna_role ON pengguna(role);
+CREATE INDEX IF NOT EXISTS idx_pengguna_bidang ON pengguna(bidang);
+CREATE INDEX IF NOT EXISTS idx_pengguna_is_active ON pengguna(is_active);
+
+CREATE INDEX IF NOT EXISTS idx_surat_nomor ON surat_masuk(nomor_surat);
+CREATE INDEX IF NOT EXISTS idx_surat_status ON surat_masuk(status);
+CREATE INDEX IF NOT EXISTS idx_surat_tanggal ON surat_masuk(tanggal_diterima);
+CREATE INDEX IF NOT EXISTS idx_surat_pengirim ON surat_masuk(pengirim);
+CREATE INDEX IF NOT EXISTS idx_surat_perihal ON surat_masuk(perihal);
+CREATE INDEX IF NOT EXISTS idx_surat_created_by ON surat_masuk(created_by);
+
+CREATE INDEX IF NOT EXISTS idx_disposisi_surat ON disposisi(surat_id);
+CREATE INDEX IF NOT EXISTS idx_disposisi_penerima ON disposisi(diberikan_kepada);
+CREATE INDEX IF NOT EXISTS idx_disposisi_pengirim ON disposisi(diberikan_oleh);
+CREATE INDEX IF NOT EXISTS idx_disposisi_deadline ON disposisi(deadline);
+
+CREATE INDEX IF NOT EXISTS idx_status_surat ON status_surat(surat_id);
+CREATE INDEX IF NOT EXISTS idx_status_diubah ON status_surat(diubah_oleh);
+
+CREATE INDEX IF NOT EXISTS idx_komentar_surat ON komentar(surat_id);
+CREATE INDEX IF NOT EXISTS idx_komentar_user ON komentar(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_aksi ON audit_log(aksi);
+CREATE INDEX IF NOT EXISTS idx_audit_entitas ON audit_log(entitas);
+CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_notifikasi_user ON notifikasi(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifikasi_dibaca ON notifikasi(dibaca);
+CREATE INDEX IF NOT EXISTS idx_notifikasi_tipe ON notifikasi(tipe);
 `;
 
 const seedUsers = async (client) => {
