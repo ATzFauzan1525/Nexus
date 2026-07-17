@@ -1,6 +1,16 @@
-# SiDis - Sistem Informasi Disposisi dan Pelacakan Surat Digital
+# SiDis — Sistem Informasi Disposisi dan Pelacakan Surat Digital
 
-Prototype full-stack untuk Sistem Informasi Disposisi dan Pelacakan Surat Digital di SMP Muhammadiyah 9 Yogyakarta.
+Sistem informasi persuratan digital untuk mendigitalisasi proses pencatatan surat masuk, disposisi, pelacakan status, dan notifikasi otomatis di SMP Muhammadiyah 9 Yogyakarta.
+
+## Anggota Tim
+
+| Nama                   | NIM        | Peran                                 |
+|------------------------|------------|---------------------------------------|
+| Ahmad Fauzan           | 2400016068 | Project Manager, Backend Developer    |
+| Abdul Hakim            | 2400016015 | Backend Developer                     |
+| Neil Melikah Fitri SUM | 2400016095 | Frontend Developer                    |
+| Suci Sulistyowati      | 2415016102 | UI/UX Designer and Frontend Developer |
+| Denta Wijaya           | 2400016103 | Database Engineer                     |
 
 ## Tech Stack
 
@@ -14,15 +24,11 @@ Prototype full-stack untuk Sistem Informasi Disposisi dan Pelacakan Surat Digita
 - Node.js ≥ 18
 - npm
 
-## Database Connection (Neon Cloud PostgreSQL)
+## Database Connection
 
-```
-DATABASE_URL=postgresql://neondb_owner:npg_2CZDJquplAk1@ep-cold-sound-ao6ukhv2-pooler.c-2.ap-southeast-1.aws.neon.tech/SiDs?sslmode=require&channel_binding=require
-```
-
-- Tidak perlu install PostgreSQL lokal — semua data tersimpan di Neon Cloud
+- Menggunakan **Neon (Cloud PostgreSQL)** — tidak perlu install PostgreSQL lokal
 - File scan surat disimpan sebagai BYTEA langsung di database (bukan di filesystem lokal)
-- `.env` berisi `DATABASE_URL` + `JWT_SECRET` + `PORT`
+- Lihat `docs/srs.md` untuk detail `DATABASE_URL` dan konfigurasi database
 
 ## Project Structure
 
@@ -48,15 +54,30 @@ SiDs/
 ## Setup
 
 ```bash
-# 1. Install dependencies
+# 1. Clone repo
+git clone https://github.com/ATzFauzan1525/Nexus.git
+cd Nexus
+
+# 2. Install dependencies
 npm install
 
-# 2. Init DB (tabel + seed user) — hanya perlu sekali atau saat schema berubah
-npm run db:init
+# 3. Buat file .env (lihat srs.md untuk isi DATABASE_URL)
+#    - macOS/Linux:
+echo "DATABASE_URL=..." > .env
+echo "JWT_SECRET=sidis-secret-key-2026" >> .env
+echo "PORT=3000" >> .env
+#    - Windows (PowerShell):
+@"
+DATABASE_URL=...
+JWT_SECRET=sidis-secret-key-2026
+PORT=3000
+"@ | Out-File -FilePath .env -Encoding utf8 -NoNewline
 
-# 3. Jalankan (satu command, satu port!)
+# 4. Jalankan (satu command, satu port!)
 npm run dev
 ```
+
+> **⚠ `.env` tidak di-commit ke GitHub.** Setiap developer harus buat manual. Lihat `docs/srs.md` untuk isi `DATABASE_URL` yang benar.
 
 > **⚠ PERINGATAN: Karena menggunakan Neon (Cloud PostgreSQL), `npm run db:init` akan MENGHAPUS SEMUA DATA yang sudah ada di database. Jangan jalankan perintah ini kecuali benar-benar diperlukan (misalnya saat pertama kali setup atau saat schema berubah). Data di Neon bersifat persisten dan TIDAK bisa dikembalikan setelah dihapus.**
 
@@ -66,16 +87,14 @@ Buka `http://localhost:3000` — API, Frontend (Vite dev server), dan Socket.io 
 > Schema menggunakan `CREATE TABLE IF NOT EXISTS` dan seed menggunakan `ON CONFLICT DO NOTHING`.
 > Database hanya perlu di-init sekali (`npm run db:init`), tidak perlu diulang saat restart.
 
+## URL
+
+- **Aplikasi:** https://sidis-nexus.vercel.app
+- **Repository:** https://github.com/ATzFauzan1525/Nexus
+
 ## Login
 
-Buka **https://sidis-nexus.vercel.app**
-
-| Role | Username | Password |
-|---|---|---|
-| Admin TU | `admin` | `admin123` |
-| Kepala Sekolah | `kepala` | `kepala123` |
-| Guru/Staf | `guru1` - `guru5` | `guru123` |
-| Wakasek | `wakasek1` - `wakasek4` | `wakasek123` |
+Buka `http://localhost:3000`
 
 ## Seed Users (11 akun)
 
@@ -83,10 +102,10 @@ Buka **https://sidis-nexus.vercel.app**
 |-----------|------------|------------------|-----------------|----------------|
 | admin     | admin123   | ADMIN_TU         | —               | Admin TU       |
 | kepala    | kepala123  | KEPALA_SEKOLAH   | —               | Dr. Ahmad Dahlan |
-| guru1     | guru123    | GURU_STAF        | Kurikulum       | Budi Santoso   |
-| guru2     | guru123    | GURU_STAF        | Kesiswaan       | Siti Rahayu    |
-| guru3     | guru123    | GURU_STAF        | SaranaPrasarana | Andi Pratama   |
-| guru4     | guru123    | GURU_STAF        | Humas           | Dewi Lestari   |
+| guru1     | guru123    | GURU_STAF        | Kurikulum       | Guru Kurikulum   |
+| guru2     | guru123    | GURU_STAF        | Kesiswaan       | Guru Kesiswaan    |
+| guru3     | guru123    | GURU_STAF        | SaranaPrasarana | Guru SaranaPrasarana   |
+| guru4     | guru123    | GURU_STAF        | Humas           | Guru Humas   |
 | guru5     | guru123    | GURU_STAF        | Keuangan        | Bendahara      |
 | wakasek1  | wakasek123 | WAKASEK          | Kurikulum       | Wakil Kurikulum |
 | wakasek2  | wakasek123 | WAKASEK          | Kesiswaan       | Wakil Kesiswaan |
@@ -145,9 +164,10 @@ Buka **https://sidis-nexus.vercel.app**
 
 ## Source of Truth
 
-- `srs.md` — Scope, fitur, business rules, NFR
-- `information_architecture.md` — Routes, layout, WebSocket channels
-- `design_system.md` — Colors, typography, components
-- `user_flows/` — 16 use case flows
+Semua detail konfigurasi, spesifikasi, dan business rules ada di `docs/`:
 
-Lihat [IMPLEMENTATION_NOTES.md](./IMPLEMENTATION_NOTES.md) untuk detail decisions dan known issues.
+- `docs/srs.md` — Scope, fitur, business rules, NFR, koneksi database
+- `docs/information_architecture.md` — Routes, layout, WebSocket channels
+- `docs/design_system.md` — Colors, typography, components
+- `docs/user_flows/` — 16 use case flows
+- `docs/system_logics/` — API contracts, sequence diagrams, data flow
