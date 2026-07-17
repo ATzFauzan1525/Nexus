@@ -54,7 +54,7 @@ export default function PosisiSurat({ socket }) {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
           <MapPin size={20} style={{ color: '#1D4ED8' }} />
           <h2 className="text-ds-h4">Posisi Surat</h2>
@@ -64,7 +64,7 @@ export default function PosisiSurat({ socket }) {
             </span>
           )}
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 flex-wrap">
           {[
             { value: 'semua', label: 'Semua' },
             { value: 'diterima', label: 'Diterima' },
@@ -100,14 +100,14 @@ export default function PosisiSurat({ socket }) {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full" style={{ minWidth: '600px' }}>
             <thead>
               <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
                 <th className="text-left px-3 py-2 text-xs font-semibold uppercase" style={{ color: '#475569' }}>No. Surat</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase" style={{ color: '#475569' }}>Perihal</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold uppercase hidden sm:table-cell" style={{ color: '#475569' }}>Perihal</th>
                 <th className="text-left px-3 py-2 text-xs font-semibold uppercase" style={{ color: '#475569' }}>Status</th>
                 <th className="text-left px-3 py-2 text-xs font-semibold uppercase" style={{ color: '#475569' }}>Posisi Saat Ini</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase" style={{ color: '#475569' }}>Disposisi Kepada</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold uppercase hidden md:table-cell" style={{ color: '#475569' }}>Disposisi Kepada</th>
               </tr>
             </thead>
             <tbody>
@@ -116,7 +116,7 @@ export default function PosisiSurat({ socket }) {
                   <td className="px-3 py-2">
                     <Link to={`/surat/${s.id}`} className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>{s.nomor_surat}</Link>
                   </td>
-                  <td className="px-3 py-2 text-sm truncate max-w-[180px]" style={{ color: '#334155' }} title={s.perihal}>{s.perihal}</td>
+                  <td className="px-3 py-2 text-sm truncate max-w-[150px] hidden sm:table-cell" style={{ color: '#334155' }} title={s.perihal}>{s.perihal}</td>
                   <td className="px-3 py-2"><StatusBadge status={s.status} /></td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-1.5">
@@ -128,7 +128,7 @@ export default function PosisiSurat({ socket }) {
                       </span>
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-sm" style={{ color: '#475569' }}>
+                  <td className="px-3 py-2 text-sm hidden md:table-cell" style={{ color: '#475569' }}>
                     {s.penerima_nama ? `${s.penerima_nama} (${s.penerima_bidang || '-'})` : '-'}
                   </td>
                 </tr>
