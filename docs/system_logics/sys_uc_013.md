@@ -1,10 +1,10 @@
-# System Logic: UC-013 Tambah Komentar
+# System Logic: UC-013 Add Comment
 
 Document Version: v1.0
 
 Use Case ID: UC-013
 
-Use Case Name: Tambah Komentar pada Surat
+Use Case Name: Add Comment to Letter
 
 Status: Draft
 
@@ -16,16 +16,16 @@ Author: System Analyst AI
 
 ## 1. Overview
 
-This document defines the system logic for adding comments on letters.
+This document defines the system logic for adding comments to letters.
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Detail Surat | `/surat/:id` | Detail surat + komentar section |
-| Detail Disposisi | `/disposisi/:id` | Detail disposisi + komentar section |
+| Letter Detail | `/surat/:id` | Letter detail + comments section |
+| Disposition Detail | `/disposisi/:id` | Disposition detail + comments section |
 
 ---
 
@@ -33,16 +33,57 @@ This document defines the system logic for adding comments on letters.
 
 | Entity | Table | Description |
 |---|---|---|
-| Komentar | `komentar` | Data komentar diskusi tim |
-| Pengguna | `pengguna` | Penulis komentar |
+| Comment | `komentar` | Team discussion comment data |
+| User | `pengguna` | Comment author |
 
 ---
 
-## 4. API Contract
+## 4. Sequence Diagram
 
-### 4.1 GET /api/surat/:suratId/komentar
+```mermaid
+sequenceDiagram
+    participant US as User (Author/Teacher/Staff)
+    participant FE as Frontend
+    participant BE as Backend API
+    participant DB as Database
 
-Ambil komentar surat.
+    US->>FE: Open Letter Detail
+    FE->>BE: GET /api/surat/:suratId/komentar
+    BE->>DB: SELECT * FROM komentar WHERE surat_id = :suratId
+    DB-->>BE: Comment list
+    BE-->>FE: 200 OK + data[]
+    FE-->>US: Display comment list
+
+    US->>FE: Fill comment & submit
+    FE->>BE: POST /api/surat/:suratId/komentar
+    BE->>DB: INSERT INTO komentar (isi, user_id, surat_id)
+    DB-->>BE: Success
+    BE-->>FE: 201 Created
+    FE-->>US: Comment added successfully
+
+    US->>FE: Click delete comment
+    FE->>AU: Delete confirmation
+    US->>FE: Confirm
+    FE->>BE: DELETE /api/surat/:suratId/komentar/:id
+    BE->>BE: Check authorization (author/Admin TU/Principal)
+    alt Authorized
+        BE->>DB: DELETE FROM komentar WHERE id = :id
+        DB-->>BE: Success
+        BE-->>FE: 200 OK
+        FE-->>US: Comment deleted successfully
+    else Unauthorized
+        BE-->>FE: 403 Forbidden
+        FE-->>US: Access denied
+    end
+```
+
+---
+
+## 5. API Contract
+
+### 5.1 GET /api/surat/:suratId/komentar
+
+Get letter comments.
 
 **Success Response (200 OK):**
 
@@ -67,9 +108,9 @@ Ambil komentar surat.
 
 ---
 
-### 4.2 POST /api/surat/:suratId/komentar
+### 5.2 POST /api/surat/:suratId/komentar
 
-Tambah komentar baru.
+Add new comment.
 
 **Request Body:**
 
@@ -90,15 +131,15 @@ Tambah komentar baru.
     "user_id": "uuid",
     "created_at": "2026-06-28T11:00:00Z"
   },
-  "message": "Komentar berhasil ditambahkan"
+  "message": "Comment added successfully"
 }
 ```
 
 ---
 
-### 4.3 DELETE /api/surat/:suratId/komentar/:id
+### 5.3 DELETE /api/surat/:suratId/komentar/:id
 
-Hapus komentar.
+Delete comment.
 
 **Success Response (200 OK):**
 
@@ -106,7 +147,7 @@ Hapus komentar.
 {
   "success": true,
   "data": null,
-  "message": "Komentar berhasil dihapus"
+  "message": "Comment deleted successfully"
 }
 ```
 
@@ -116,22 +157,49 @@ Hapus komentar.
 {
   "success": false,
   "data": null,
-  "message": "Tidak memiliki akses untuk menghapus komentar ini",
+  "message": "You do not have access to delete this comment",
   "errors": []
 }
 ```
 
 ---
 
-## 5. Business Rules Reference
+## 6. Data Flow
 
-| Code | Rule |
-|---|---|
-| BR-18 | Komentar hanya dapat dihapus oleh penulis, Admin TU, atau Kepala Sekolah |
+1. User opens Letter Detail → frontend sends `GET /api/surat/:suratId/komentar` to fetch all comments related to the letter.
+2. Backend fetches comment data from `komentar` table along with author data from `pengguna` table, then returns comment list.
+3. To add comment, user fills form → frontend sends `POST /api/surat/:suratId/komentar` → backend validates data → inserts into `komentar` table with `user_id` from JWT token → returns new comment.
+4. To delete comment, user confirms deletion → frontend sends `DELETE /api/surat/:suratId/komentar/:id` → backend checks authorization (author, Admin TU, or Principal) → if authorized, comment is deleted from `komentar` table.
+5. Comment data is linked to `Surat` and `Pengguna` (author) entities.
 
 ---
 
-## 6. Traceability
+## 7. Validation Rules
+
+| Column | Rule |
+|---|---|
+| `isi` | Required, min 1 character |
+| `suratId` | Must be valid UUID |
+| `:id` (komentar) | Must be valid UUID |
+
+---
+
+## 8. Security Rules
+
+- JWT authentication required for all endpoints
+- Delete only by author, Admin TU, or Principal (BR-18)
+
+---
+
+## 9. Business Rule References
+
+| Code | Rule |
+|---|---|
+| BR-18 | Comments can only be deleted by author, Admin TU, or Principal |
+
+---
+
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|

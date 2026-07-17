@@ -1,10 +1,10 @@
-# System Logic: UC-012 Lacak Surat Publik
+# System Logic: UC-012 Track Public Letter
 
 Document Version: v1.0
 
 Use Case ID: UC-012
 
-Use Case Name: Lacak Surat Publik (Tanpa Login)
+Use Case Name: Track Public Letter (No Login)
 
 Status: Draft
 
@@ -20,11 +20,11 @@ This document defines the system logic for public letter tracking without login.
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Lacak Surat | `/lacak` | Halaman publik pelacakan surat |
+| Track Letter | `/lacak` | Public letter tracking page |
 
 ---
 
@@ -32,8 +32,8 @@ This document defines the system logic for public letter tracking without login.
 
 | Entity | Table | Description |
 |---|---|---|
-| Surat Masuk | `surat_masuk` | Data surat (limited fields) |
-| Status Surat | `status_surat` | Timeline untuk stepper |
+| Incoming Letter | `surat_masuk` | Letter data (limited fields) |
+| Letter Status | `status_surat` | Timeline for stepper |
 
 ---
 
@@ -50,21 +50,21 @@ sequenceDiagram
     External->>Frontend: Navigate to /lacak
     Frontend-->>External: Display search form
 
-    External->>Frontend: Enter nomor surat
+    External->>Frontend: Enter letter number
     External->>Frontend: Click "Cek Status"
 
     Frontend->>API: GET /api/public/lacak?nomor=001/SM9-YK/VI/2026
-    API->>Database: SELECT surat WHERE nomor_surat = input
+    API->>Database: SELECT letter WHERE nomor_surat = input
 
-    alt Surat found
+    alt Letter found
         API->>Database: SELECT status_surat WHERE surat_id
         API-->>Frontend: 200 OK + limited data
         Frontend->>Frontend: Join room lacak:{nomorSurat}
         Frontend-->>External: Display tracking result
         Frontend-->>External: Show stepper + status
-    else Surat not found
+    else Letter not found
         API-->>Frontend: 404 Not Found
-        Frontend-->>External: Show "Nomor surat tidak ditemukan"
+        Frontend-->>External: Show "Letter number not found"
     end
 
     Note over WebSocket: Realtime updates
@@ -78,19 +78,19 @@ sequenceDiagram
 
 ### 5.1 GET /api/public/lacak
 
-Lacak status surat publik (tanpa login).
+Track public letter status (no login).
 
 **Request Headers:**
 
 | Header | Value |
 |---|---|
-| (none) | Endpoint publik, tidak perlu JWT |
+| (none) | Public endpoint, no JWT needed |
 
 **Query Params:**
 
 | Param | Type | Description |
 |---|---|---|
-| nomor | string | Nomor surat yang dicari |
+| nomor | string | Letter number to search |
 
 **Success Response (200 OK):**
 
@@ -116,7 +116,7 @@ Lacak status surat publik (tanpa login).
       }
     ]
   },
-  "message": "Surat ditemukan"
+  "message": "Letter found"
 }
 ```
 
@@ -126,29 +126,29 @@ Lacak status surat publik (tanpa login).
 {
   "success": false,
   "data": null,
-  "message": "Nomor surat tidak ditemukan",
+  "message": "Letter number not found",
   "errors": []
 }
 ```
 
 ---
 
-## 6. Data Filtering (BR-16)
+## 6. Data Flow
 
-Data yang DITAMPILKAN:
+Data DISPLAYED:
 - nomor_surat, pengirim, perihal
 - status, posisi_saat_ini
-- alur (stepper) dengan nama role (bukan nama orang)
+- alur (stepper) with role names (not personal names)
 
-Data yang TIDAK ditampilkan:
-- file scan
-- instruksi disposisi
-- nama lengkap penerima disposisi
-- catatan tindak lanjut
+Data NOT displayed:
+- scan file
+- disposition instructions
+- full name of disposition recipient
+- follow-up notes
 
 ---
 
-## 7. WebSocket Events
+## 10. WebSocket Events
 
 | Event | Room | Payload |
 |---|---|---|
@@ -156,16 +156,35 @@ Data yang TIDAK ditampilkan:
 
 ---
 
-## 8. Business Rules Reference
+## 7. Validation Rules
 
-| Code | Rule |
+| Rule | Description |
 |---|---|
-| BR-16 | Pelacakan publik hanya menampilkan status, posisi, alur, nama role |
-| BR-17 | Endpoint publik tidak memerlukan JWT, tetapi harus di-rate-limit |
+| Query Param `nomor` | Required, string. Letter number to search. |
+| Rate Limiting | Rate limiting per IP enforced (BR-17) |
 
 ---
 
-## 9. Traceability
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| No JWT Needed | Public endpoint, no authentication required |
+| Rate-Limited Per IP | Endpoint rate-limited per IP address (BR-17) |
+| Limited Data Only | Only returns limited data (BR-16): status, position, flow, role names — no personal names |
+
+---
+
+## 9. Business Rule References
+
+| Code | Rule |
+|---|---|
+| BR-16 | Public tracking only displays status, position, flow, role names |
+| BR-17 | Public endpoint does not require JWT, but must be rate-limited |
+
+---
+
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|

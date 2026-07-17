@@ -1,10 +1,10 @@
-# System Logic: UC-011 Sinkronisasi Realtime Multi-Aktor
+# System Logic: UC-011 Multi-Actor Realtime Sync
 
 Document Version: v1.0
 
 Use Case ID: UC-011
 
-Use Case Name: Sinkronisasi Realtime Multi-Aktor
+Use Case Name: Multi-Actor Realtime Sync
 
 Status: Draft
 
@@ -20,9 +20,9 @@ This document defines the system logic for realtime synchronization via WebSocke
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
 | All Pages | - | Realtime updates on any page |
 
@@ -32,13 +32,42 @@ This document defines the system logic for realtime synchronization via WebSocke
 
 | Entity | Table | Description |
 |---|---|---|
-| All | All | Any data change triggers WebSocket event |
+| All | All | Every data change triggers a WebSocket event |
 
 ---
 
-## 4. WebSocket Connection
+## 4. Sequence Diagram
 
-### 4.1 Connection Setup
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant Database
+
+    Client->>Server: io(API_URL, {auth: {token: jwt}})
+    Server->>Server: Verify JWT token
+    alt Invalid token
+        Server-->>Client: connect_error (auth error)
+    else Valid token
+        Server-->>Client: connect (success)
+        Server->>Database: Fetch user role & department
+        Server->>Server: Join rooms: user:{id}, role:{role}
+        opt Vice Principal
+            Server->>Server: Join room role:WAKASEK_BIDANG:{bidang}
+        end
+    end
+
+    Note over Server: Data change occurs (letter, disposition, etc.)
+    Server->>Server: Emit event to target room(s)
+    Server-->>Client: surat:baru / disposisi:baru / status:update / etc.
+    Client->>Client: Update UI (table, notification badge, etc.)
+```
+
+---
+
+## 5. WebSocket Connection
+
+### 5.1 Connection Setup
 
 ```javascript
 // Client connects with JWT token
@@ -52,69 +81,100 @@ socket.on('connect', () => {
 });
 ```
 
-### 4.2 Room Structure
+### 5.2 Room Structure
 
 | Room | Description | Joined By |
 |---|---|---|
-| user:{id} | Notifikasi personal | Semua user login |
-| role:{peran} | Broadcast sesuai role | Semua user login |
-| role:WAKASEK_BIDANG:{bidang} | Khusus Wakasek per bidang | Wakasek only |
-| lacak:{nomorSurat} | Publik (tanpa login) | User di /lacak |
+| user:{id} | Personal notifications | All logged-in users |
+| role:{role} | Role-based broadcast | All logged-in users |
+| role:WAKASEK_BIDANG:{bidang} | Vice Principal per department | Vice Principal only |
+| lacak:{nomorSurat} | Public (no login) | Users on /lacak |
 
 ---
 
-## 5. WebSocket Events
+## 10. WebSocket Events
 
-### 5.1 Outgoing Events (Server → Client)
+### 6.1 Outgoing Events (Server → Client)
 
-| Event | Room Target | Payload |
+| Event | Target Room | Payload |
 |---|---|---|
-| surat:baru | role:KEPALA_SEKOLAH | Object SuratMasuk |
-| disposisi:baru | user:{idPenerima} | Object Disposisi |
-| status:update | role:KEPALA_SEKOLAH, role:WAKASEK_BIDANG:{bidang} | Status terbaru |
-| notifikasi:baru | user:{idPenerima} | Object Notifikasi |
-| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Trigger refresh |
+| surat:baru | role:KEPALA_SEKOLAH | SuratMasuk object |
+| disposisi:baru | user:{idPenerima} | Disposisi object |
+| status:update | role:KEPALA_SEKOLAH, role:WAKASEK_BIDANG:{bidang} | Latest status |
+| notifikasi:baru | user:{idPenerima} | Notifikasi object |
+| dashboard:refresh | role:KEPALA_SEKOLAH, role:WAKASEK | Refresh trigger |
 | lacak:update | lacak:{nomorSurat} | {status, posisiSaatIni} |
 
-### 5.2 Client Actions on Events
+### 6.2 Client Actions on Event
 
 | Event | Client Action |
 |---|---|
-| surat:baru | Add surat to table, highlight row |
-| disposisi:baru | Add disposisi to list, show notification |
+| surat:baru | Add letter to table, highlight row |
+| disposisi:baru | Add disposition to list, show notification |
 | status:update | Update status badge, highlight row |
-| notifikasi:baru | Increment badge, add to dropdown |
-| dashboard:refresh | Re-fetch stats and position table |
+| notifikasi:baru | Increment badge count, add to dropdown |
+| dashboard:refresh | Refetch statistics and position table |
 | lacak:update | Update tracking result |
 
 ---
 
-## 6. Reconnection Logic
+## 6. Data Flow
+
+1. **Event Source:** Server detects data changes (e.g., new letter, disposition, status update).
+2. **Server resolution determines target room based on event type (role room, user room, department room, or public tracking room).**
+3. **Event Dispatch:** Server sends typed event (e.g., `surat:baru`) to the matching room.
+4. **Client Receipt:** All clients subscribed to that room receive the event with payload.
+5. **UI Update:** Client processes the event and updates relevant UI components (table row, notification badge, tracking stepper, etc.).
+6. **Fallback:** On disconnect, client auto-reconnects and refetches data from REST API to sync state.
+
+---
+
+## 8. Reconnection Logic
 
 ```javascript
 socket.on('disconnect', () => {
-  // Show "Menyambungkan ulang..." indicator
+  // Show "Reconnecting..." indicator
 });
 
 socket.on('connect', () => {
   // Resync data from REST API
-  // Show "Koneksi tersambung kembali" toast
+  // Show "Reconnected" toast
 });
 ```
 
 ---
 
-## 7. Business Rules Reference
+## 7. Validation Rules
 
-| Code | Rule |
+| Rule | Description |
 |---|---|
-| BR-15 | Setiap perubahan data wajib didorong secara realtime via WebSocket |
-| NF-08 | Update harus diterima klien dalam waktu ≤ 2 detik |
-| NF-09 | Auto-reconnect dengan resync saat koneksi pulih |
+| JWT Required | JWT token must be provided on WebSocket connection |
+| Join Room: `user:{id}` | User can only join their own user room |
+| Join Room: `role:{role}` | User can only join the room matching their own role |
+| Join Room: `role:WAKASEK_BIDANG:{bidang}` | Vice Principal can only join the room matching their own department |
 
 ---
 
-## 8. Traceability
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| JWT Authentication | JWT authentication required on WebSocket connection; token verified before accepting connection |
+| Room-Based Access Control | Server enforces room-based access control; client cannot join rooms they are not authorized for |
+
+---
+
+## 9. Business Rule References
+
+| Code | Rule |
+|---|---|
+| BR-15 | Every data change must be pushed in realtime via WebSocket |
+| NF-08 | Updates must be received by client within ≤ 2 seconds |
+| NF-09 | Auto-reconnect with resync when connection is restored |
+
+---
+
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|
