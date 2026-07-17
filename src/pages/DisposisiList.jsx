@@ -61,7 +61,7 @@ export default function DisposisiListPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <div className="card flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#EFF6FF' }}>
             <ClipboardList size={20} style={{ color: '#1D4ED8' }} />
@@ -111,7 +111,8 @@ export default function DisposisiListPage() {
           />
         ) : (
           <>
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full" style={{ minWidth: '500px' }}>
               <thead>
                 <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
                   <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nomor Surat</th>
@@ -135,6 +136,7 @@ export default function DisposisiListPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
                 <p className="text-sm" style={{ color: '#475569' }}>Halaman {page} dari {totalPages}</p>

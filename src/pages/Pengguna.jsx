@@ -57,9 +57,9 @@ export default function PenggunaPage() {
     <div>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h1 className="text-ds-h1">Manajemen Pengguna</h1>
-        <Link to="/pengguna/tambah" className="btn-primary flex items-center gap-2">
+        <Link to="/pengguna/tambah" className="btn-primary flex items-center justify-center gap-2">
           <UserPlus size={16} /> Tambah Pengguna
         </Link>
       </div>
@@ -81,43 +81,42 @@ export default function PenggunaPage() {
             description="Belum ada pengguna yang terdaftar."
           />
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nama</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Username</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Role</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Bidang</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Status</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pengguna.map((p, idx) => (
-                <tr key={p.id} style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
-                  <td className="px-4 py-3 text-sm font-medium" style={{ color: '#0F172A' }}>{p.nama_lengkap}</td>
-                  <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{p.username}</td>
-                  <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{roleLabels[p.role] || p.role}</td>
-                  <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>{p.bidang || '-'}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: p.is_active ? '#DCFCE7' : '#FEE2E2', color: p.is_active ? '#166534' : '#991B1B' }}>
-                      {p.is_active ? 'Aktif' : 'Nonaktif'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link to={`/pengguna/${p.id}/edit`} className="p-1.5 rounded-md hover:bg-blue-50 transition-colors" style={{ color: '#475569' }} title="Edit">
-                        <Edit size={16} />
-                      </Link>
-                      <button onClick={() => setDeleteModal({ open: true, user: p })} className="p-1.5 rounded-md hover:bg-red-50 transition-colors" style={{ color: '#DC2626' }} title="Hapus">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full" style={{ minWidth: '550px' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nama</th>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden sm:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Username</th>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Role</th>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden md:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Bidang</th>
+                  <th className="text-right px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {pengguna.map((p, idx) => (
+                  <tr key={p.id} style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
+                    <td className="px-3 md:px-4 py-2 md:py-3">
+                      <p className="text-sm font-medium" style={{ color: '#0F172A' }}>{p.nama_lengkap}</p>
+                      <p className="text-xs sm:hidden" style={{ color: '#475569' }}>@{p.username}</p>
+                    </td>
+                    <td className="px-3 md:px-4 py-2 md:py-3 text-sm hidden sm:table-cell" style={{ color: '#334155' }}>{p.username}</td>
+                    <td className="px-3 md:px-4 py-2 md:py-3 text-sm" style={{ color: '#334155' }}>{roleLabels[p.role] || p.role}</td>
+                    <td className="px-3 md:px-4 py-2 md:py-3 text-sm hidden md:table-cell" style={{ color: '#475569' }}>{p.bidang || '-'}</td>
+                    <td className="px-3 md:px-4 py-2 md:py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link to={`/pengguna/${p.id}/edit`} className="p-1.5 rounded-md hover:bg-blue-50 transition-colors" style={{ color: '#475569' }} title="Edit">
+                          <Edit size={16} />
+                        </Link>
+                        <button onClick={() => setDeleteModal({ open: true, user: p })} className="p-1.5 rounded-md hover:bg-red-50 transition-colors" style={{ color: '#DC2626' }} title="Hapus">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -136,7 +135,7 @@ export default function PenggunaPage() {
         }
       >
         <p className="text-sm" style={{ color: '#334155' }}>
-          Apakah Anda yakin ingin menghapus pengguna <strong>{deleteModal.user?.nama_lengkap}</strong>? Tindakan ini tidak dapat dibatalkan.
+          Apakah Anda yakin ingin menghapus pengguna <strong>{deleteModal.user?.nama_lengkap}</strong> secara permanen? Data terkait (disposisi, komentar) akan tetap ada tanpa nama pengguna.
         </p>
       </Modal>
     </div>

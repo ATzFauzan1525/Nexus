@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
-import { StatusBadge, LoadingSkeleton, RealtimeHighlight } from '../components/UI';
+import { StatusBadge, LoadingSkeleton } from '../components/UI';
 import LacakWidget from '../components/LacakWidget';
 import PosisiSurat from '../components/PosisiSurat';
 import { Mail, AlertTriangle, CheckCircle, Clock, FileText } from 'lucide-react';
@@ -51,7 +51,7 @@ export default function DashboardPage() {
     return (
       <div>
         <h1 className="text-ds-h1 mb-6">Dashboard</h1>
-        <div className="grid grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="card animate-pulse">
               <div className="h-4 bg-neutral-200 rounded w-1/2 mb-3" />
@@ -89,17 +89,18 @@ export default function DashboardPage() {
     <div>
       <h1 className="text-ds-h1 mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
         {statCards.map((card, idx) => {
           const Icon = card.icon;
           return (
-            <div key={idx} className="card flex items-center gap-4">
-              <div className="p-3 rounded-lg" style={{ backgroundColor: card.bg }}>
-                <Icon size={24} style={{ color: card.color }} />
+            <div key={idx} className="card flex items-center gap-3 md:gap-4">
+              <div className="p-2.5 md:p-3 rounded-lg" style={{ backgroundColor: card.bg }}>
+                <Icon size={20} className="md:hidden" style={{ color: card.color }} />
+                <Icon size={24} className="hidden md:block" style={{ color: card.color }} />
               </div>
               <div>
-                <p className="text-sm" style={{ color: '#475569' }}>{card.label}</p>
-                <p className="text-2xl font-bold" style={{ color: '#0F172A' }}>{card.value}</p>
+                <p className="text-xs md:text-sm" style={{ color: '#475569' }}>{card.label}</p>
+                <p className="text-xl md:text-2xl font-bold" style={{ color: '#0F172A' }}>{card.value}</p>
               </div>
             </div>
           );
@@ -114,39 +115,41 @@ export default function DashboardPage() {
 
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-ds-h3">{isGuruStaf ? 'Disposisi Terbaru' : 'Surat Terbaru'}</h2>
-          {!isGuruStaf && <Link to="/surat" className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>Lihat Semua</Link>}
-          {isGuruStaf && <Link to="/disposisi/saya" className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>Lihat Semua</Link>}
+          <h2 className="text-ds-h4 md:text-ds-h3">{isGuruStaf ? 'Disposisi Terbaru' : 'Surat Terbaru'}</h2>
+          {!isGuruStaf && <Link to="/surat" className="text-xs md:text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>Lihat Semua</Link>}
+          {isGuruStaf && <Link to="/disposisi/saya" className="text-xs md:text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>Lihat Semua</Link>}
         </div>
         {recentSurat.length === 0 ? (
           <div className="text-center py-8" style={{ color: '#94A3B8' }}>
             <p>Belum ada surat masuk</p>
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nomor Surat</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Pengirim</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Perihal</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Status</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Tanggal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentSurat.map((surat, idx) => (
-                <tr key={surat.id} style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
-                  <td className="px-4 py-3">
-                    <Link to={`/surat/${surat.id}`} className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>{surat.nomor_surat}</Link>
-                  </td>
-                  <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{surat.pengirim}</td>
-                  <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{surat.perihal}</td>
-                  <td className="px-4 py-3"><StatusBadge status={surat.status} /></td>
-                  <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>{new Date(surat.tanggal_diterima).toLocaleDateString('id-ID')}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full" style={{ minWidth: '500px' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nomor Surat</th>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden sm:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Pengirim</th>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Perihal</th>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Status</th>
+                  <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden md:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Tanggal</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentSurat.map((surat, idx) => (
+                  <tr key={surat.id} style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
+                    <td className="px-3 md:px-4 py-2 md:py-3">
+                      <Link to={`/surat/${surat.id}`} className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>{surat.nomor_surat}</Link>
+                    </td>
+                    <td className="px-3 md:px-4 py-2 md:py-3 text-sm hidden sm:table-cell" style={{ color: '#334155' }}>{surat.pengirim}</td>
+                    <td className="px-3 md:px-4 py-2 md:py-3 text-sm truncate max-w-[150px] md:max-w-none" style={{ color: '#334155' }}>{surat.perihal}</td>
+                    <td className="px-3 md:px-4 py-2 md:py-3"><StatusBadge status={surat.status} /></td>
+                    <td className="px-3 md:px-4 py-2 md:py-3 text-sm hidden md:table-cell" style={{ color: '#475569' }}>{new Date(surat.tanggal_diterima).toLocaleDateString('id-ID')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
