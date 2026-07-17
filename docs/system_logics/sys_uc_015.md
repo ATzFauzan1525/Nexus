@@ -1,10 +1,10 @@
-# System Logic: UC-015 Download File Scan
+# System Logic: UC-015 Download Scan File
 
 Document Version: v1.0
 
 Use Case ID: UC-015
 
-Use Case Name: Download File Scan Surat
+Use Case Name: Download Letter Scan File
 
 Status: Draft
 
@@ -16,16 +16,16 @@ Author: System Analyst AI
 
 ## 1. Overview
 
-This document defines the system logic for downloading scanned letter files from database.
+This document defines the system logic for downloading letter scan files from the database.
 
 ---
 
-## 2. Related Screens
+## 2. Related Pages
 
-| Screen | Route | Description |
+| Page | Route | Description |
 |---|---|---|
-| Detail Surat | `/surat/:id` | Tombol download file scan |
-| Detail Disposisi | `/disposisi/:id` | Tombol download file scan |
+| Letter Detail | `/surat/:id` | Scan file download button |
+| Disposition Detail | `/disposisi/:id` | Scan file download button |
 
 ---
 
@@ -33,7 +33,7 @@ This document defines the system logic for downloading scanned letter files from
 
 | Entity | Table | Description |
 |---|---|---|
-| Surat Masuk | `surat_masuk` | File scan (BYTEA) |
+| Incoming Letter | `surat_masuk` | Scan file (BYTEA) |
 
 ---
 
@@ -63,7 +63,7 @@ sequenceDiagram
 
 ### 5.1 GET /api/surat/:id/download
 
-Download file scan dari database.
+Download scan file from database.
 
 **Request Headers:**
 
@@ -83,22 +83,50 @@ Binary file data
 {
   "success": false,
   "data": null,
-  "message": "File tidak ditemukan",
+  "message": "File not found",
   "errors": []
 }
 ```
 
 ---
 
-## 6. Business Rules Reference
+## 6. Data Flow
 
-| Code | Rule |
-|---|---|
-| BR-20 | File scan disimpan sebagai BYTEA di database, diunduh melalui endpoint dengan JWT |
+1. **Request Received:** API receives `GET /api/surat/:id/download` with JWT token.
+2. **Authentication & Lookup:** Server authenticates user, verifies letter access rights, queries `surat_masuk` for `file_data` (BYTEA) and `file_mime`.
+3. **Binary Stream:** Server reads raw BYTEA binary data from database row.
+4. **Response Headers:** Server sets `Content-Type` to stored MIME type and `Content-Disposition` for download.
+5. **Stream to Client:** Binary data is streamed to client as HTTP response body.
+6. **Client Handling:** Frontend creates Blob from binary, generates blob URL, and triggers download or opens in new tab.
 
 ---
 
-## 7. Traceability
+## 7. Validation Rules
+
+| Rule | Description |
+|---|---|
+| UUID Format | `:id` must be valid UUID |
+
+---
+
+## 8. Security Rules
+
+| Rule | Description |
+|---|---|
+| JWT Authentication | JWT authentication required (Bearer token in Authorization header) |
+| Role-Based Access | Access follows same letter access rules (e.g., Principal sees all, Vice Principal sees department letters, Admin sees all) |
+
+---
+
+## 9. Business Rule References
+
+| Code | Rule |
+|---|---|
+| BR-20 | Scan files stored as BYTEA in database, downloaded via endpoint with JWT |
+
+---
+
+## 11. Traceability
 
 | User Flow | Requirement | API Endpoint |
 |---|---|---|
