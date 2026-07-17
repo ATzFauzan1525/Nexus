@@ -12,13 +12,13 @@ exports.login = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM pengguna WHERE username = $1 AND is_active = true', [username]);
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'Password atau email salah' });
+      return res.status(401).json({ message: 'Username atau password salah' });
     }
 
     const user = result.rows[0];
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return res.status(401).json({ message: 'Password atau email salah' });
+      return res.status(401).json({ message: 'Username atau password salah' });
     }
 
     const token = jwt.sign(
