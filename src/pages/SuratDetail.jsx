@@ -146,11 +146,11 @@ export default function SuratDetailPage() {
         <h1 className="text-ds-h1">Detail Surat</h1>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
           <div className="card mb-6">
             <h2 className="text-ds-h4 mb-4">Informasi Surat</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm" style={{ color: '#475569' }}>Nomor Surat</p>
                 <p className="font-medium" style={{ color: '#0F172A' }}>{surat?.nomor_surat}</p>
@@ -272,7 +272,7 @@ export default function SuratDetailPage() {
           )}
         </div>
 
-        <div className="col-span-1">
+        <div className="lg:col-span-1">
           <div className="card">
             <h2 className="text-ds-h4 mb-4">Timeline</h2>
             {surat?.timeline?.length > 0 ? (

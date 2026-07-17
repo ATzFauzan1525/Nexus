@@ -101,7 +101,7 @@ export default function BuatDisposisiPage() {
       {surat && (
         <div className="card mb-6">
           <h2 className="text-ds-h4 mb-3">Informasi Surat</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <p className="text-sm" style={{ color: '#475569' }}>Nomor Surat</p>
               <p className="font-medium" style={{ color: '#0F172A' }}>{surat.nomor_surat}</p>

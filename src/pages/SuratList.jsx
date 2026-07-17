@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
-import { StatusBadge, LoadingSkeleton, EmptyState, RealtimeHighlight } from '../components/UI';
+import { StatusBadge, LoadingSkeleton, EmptyState } from '../components/UI';
 import { Search, Plus, Inbox, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function SuratListPage() {
@@ -69,10 +69,10 @@ export default function SuratListPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h1 className="text-ds-h1">Daftar Surat Masuk</h1>
         {user?.role === 'ADMIN_TU' && (
-          <Link to="/surat/tambah" className="btn-primary flex items-center gap-2">
+          <Link to="/surat/tambah" className="btn-primary flex items-center justify-center gap-2">
             <Plus size={16} />
             Input Surat Baru
           </Link>
@@ -87,31 +87,35 @@ export default function SuratListPage() {
       )}
 
       <div className="card mb-6">
-        <form onSubmit={handleSearch} className="flex gap-3">
-          <div className="flex-1 relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#94A3B8' }} />
-            <input
-              type="text"
-              value={search}
-              onChange={handleSearchChange}
-              placeholder="Cari nomor surat, pengirim, atau perihal..."
-              className="input-field pl-10 w-full"
-            />
+        <form onSubmit={handleSearch} className="space-y-3">
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#94A3B8' }} />
+              <input
+                type="text"
+                value={search}
+                onChange={handleSearchChange}
+                placeholder="Cari nomor surat, pengirim, atau perihal..."
+                className="input-field pl-10 w-full"
+              />
+            </div>
+            <button type="submit" className="btn-primary px-4">Cari</button>
           </div>
-          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field" style={{ width: '160px' }}>
-            <option value="">Semua Status</option>
-            <option value="Diterima">Diterima</option>
-            <option value="Didisposisi">Didisposisi</option>
-            <option value="Diproses">Diproses</option>
-            <option value="Selesai">Selesai</option>
-          </select>
-          <button type="submit" className="btn-primary">Cari</button>
-          <button type="button" onClick={() => setShowAdvanced(!showAdvanced)} className="btn-secondary flex items-center gap-1">
-            <Filter size={14} /> Filter {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
+          <div className="flex gap-2 flex-wrap">
+            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field flex-1 sm:flex-none" style={{ minWidth: '120px' }}>
+              <option value="">Semua Status</option>
+              <option value="Diterima">Diterima</option>
+              <option value="Didisposisi">Didisposisi</option>
+              <option value="Diproses">Diproses</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+            <button type="button" onClick={() => setShowAdvanced(!showAdvanced)} className="btn-secondary flex items-center gap-1">
+              <Filter size={14} /> <span className="hidden sm:inline">Filter</span> {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          </div>
         </form>
         {showAdvanced && (
-          <div className="mt-4 pt-4 grid grid-cols-4 gap-3" style={{ borderTop: '1px solid #E2E8F0' }}>
+          <div className="mt-4 pt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" style={{ borderTop: '1px solid #E2E8F0' }}>
             <div>
               <label className="label-field">Tanggal Mulai</label>
               <input type="date" value={advanced.tanggal_mulai} onChange={(e) => setAdvanced({ ...advanced, tanggal_mulai: e.target.value })} className="input-field w-full" />
@@ -144,32 +148,34 @@ export default function SuratListPage() {
           />
         ) : (
           <>
-            <table className="w-full">
-              <thead>
-                <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nomor Surat</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Tanggal</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Pengirim</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Perihal</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {surat.map((s, idx) => (
-                  <tr key={s.id} className="hover:bg-blue-50 cursor-pointer" style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
-                    <td className="px-4 py-3">
-                      <Link to={`/surat/${s.id}`} className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>{s.nomor_surat}</Link>
-                    </td>
-                    <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>{new Date(s.tanggal_diterima).toLocaleDateString('id-ID')}</td>
-                    <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{s.pengirim}</td>
-                    <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{s.perihal}</td>
-                    <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
+            <div className="overflow-x-auto">
+              <table className="w-full" style={{ minWidth: '500px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nomor Surat</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden sm:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Tanggal</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden md:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Pengirim</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Perihal</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {surat.map((s, idx) => (
+                    <tr key={s.id} className="hover:bg-blue-50 cursor-pointer" style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
+                      <td className="px-3 md:px-4 py-2 md:py-3">
+                        <Link to={`/surat/${s.id}`} className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>{s.nomor_surat}</Link>
+                      </td>
+                      <td className="px-3 md:px-4 py-2 md:py-3 text-sm hidden sm:table-cell" style={{ color: '#475569' }}>{new Date(s.tanggal_diterima).toLocaleDateString('id-ID')}</td>
+                      <td className="px-3 md:px-4 py-2 md:py-3 text-sm hidden md:table-cell" style={{ color: '#334155' }}>{s.pengirim}</td>
+                      <td className="px-3 md:px-4 py-2 md:py-3 text-sm truncate max-w-[120px] md:max-w-none" style={{ color: '#334155' }}>{s.perihal}</td>
+                      <td className="px-3 md:px-4 py-2 md:py-3"><StatusBadge status={s.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
                 <p className="text-sm" style={{ color: '#475569' }}>Halaman {page} dari {totalPages} ({total} surat)</p>
                 <div className="flex gap-2">
                   <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="btn-secondary text-sm" style={{ padding: '6px 12px' }}>Sebelumnya</button>

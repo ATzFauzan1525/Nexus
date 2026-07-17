@@ -201,7 +201,7 @@ export default function LacakPage() {
                               {isAchieved ? (
                                 <>
                                   {timelineMap[status].diubah_oleh_nama && (
-                                    <p className="text-xs text-center" style={{ color: '#475569', maxWidth: '100px' }}>
+                                    <p className="text-xs text-center font-medium" style={{ color: '#334155', maxWidth: '140px' }}>
                                       {timelineMap[status].diubah_oleh_nama}
                                     </p>
                                   )}

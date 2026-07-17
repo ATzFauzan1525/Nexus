@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import { StatusBadge, LoadingSkeleton, EmptyState } from '../components/UI';
-import { ClipboardList, CheckCircle, PlayCircle } from 'lucide-react';
+import { ClipboardList, Eye } from 'lucide-react';
 
 export default function DisposisiSayaPage() {
   const { user, socket } = useAuth();
@@ -12,7 +12,6 @@ export default function DisposisiSayaPage() {
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [actionLoading, setActionLoading] = useState(null);
   const limit = 20;
 
   const fetchDisposisi = useCallback(async () => {
@@ -32,18 +31,6 @@ export default function DisposisiSayaPage() {
   useEffect(() => {
     fetchDisposisi();
   }, [fetchDisposisi]);
-
-  const handleUpdateStatus = async (suratId, newStatus) => {
-    setActionLoading(suratId);
-    try {
-      await api.updateStatus({ surat_id: suratId, status: newStatus, catatan: `Status diubah ke ${newStatus}` });
-      fetchDisposisi();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setActionLoading(null);
-    }
-  };
 
   useEffect(() => {
     if (socket) {
@@ -81,53 +68,47 @@ export default function DisposisiSayaPage() {
           />
         ) : (
           <>
-            <table className="w-full">
-              <thead>
-                <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nomor Surat</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Perihal</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Dari</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Deadline</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {disposisi.map((d, idx) => {
-                  const isOverdue = new Date(d.deadline) < new Date() && d.surat_status !== 'Selesai';
-                  return (
-                    <tr key={d.id} style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
-                      <td className="px-4 py-3">
-                        <Link to={`/disposisi/${d.id}`} className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>{d.nomor_surat}</Link>
-                      </td>
-                      <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{d.perihal}</td>
-                      <td className="px-4 py-3 text-sm" style={{ color: '#334155' }}>{d.pemberi_nama}</td>
-                      <td className="px-4 py-3 text-sm" style={{ color: isOverdue ? '#DC2626' : '#475569', fontWeight: isOverdue ? 600 : 400 }}>
-                        {new Date(d.deadline).toLocaleDateString('id-ID')}
-                        {isOverdue && <span className="ml-1 text-xs">(Overdue)</span>}
-                      </td>
-                      <td className="px-4 py-3"><StatusBadge status={d.surat_status} /></td>
-                      <td className="px-4 py-3">
-                        {d.surat_status === 'Didisposisi' && (
-                          <button onClick={() => handleUpdateStatus(d.surat_id, 'Diproses')} disabled={actionLoading === d.surat_id} className="text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1" style={{ backgroundColor: '#EFF6FF', color: '#1D4ED8' }}>
-                            {actionLoading === d.surat_id ? <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" /> : <PlayCircle size={13} />}
-                            Tindak Lanjut
-                          </button>
-                        )}
-                        {d.surat_status === 'Diproses' && (
-                          <button onClick={() => handleUpdateStatus(d.surat_id, 'Selesai')} disabled={actionLoading === d.surat_id} className="text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1" style={{ backgroundColor: '#F0FDF4', color: '#16A34A' }}>
-                            {actionLoading === d.surat_id ? <div className="w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <CheckCircle size={13} />}
-                            Selesai
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="w-full" style={{ minWidth: '550px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#F1F5F9', borderBottom: '1px solid #E2E8F0' }}>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Nomor Surat</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden sm:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Perihal</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase hidden md:table-cell" style={{ color: '#475569', letterSpacing: '0.05em' }}>Dari</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Deadline</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Status</th>
+                    <th className="text-left px-3 md:px-4 py-2 md:py-3 text-xs font-semibold uppercase" style={{ color: '#475569', letterSpacing: '0.05em' }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {disposisi.map((d, idx) => {
+                    const isOverdue = new Date(d.deadline) < new Date() && d.surat_status !== 'Selesai';
+                    return (
+                      <tr key={d.id} style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
+                        <td className="px-3 md:px-4 py-2 md:py-3">
+                          <Link to={`/disposisi/${d.id}`} className="text-sm font-medium hover:underline" style={{ color: '#1D4ED8' }}>{d.nomor_surat}</Link>
+                        </td>
+                        <td className="px-3 md:px-4 py-2 md:py-3 text-sm truncate max-w-[120px] hidden sm:table-cell" style={{ color: '#334155' }}>{d.perihal}</td>
+                        <td className="px-3 md:px-4 py-2 md:py-3 text-sm hidden md:table-cell" style={{ color: '#334155' }}>{d.pemberi_nama}</td>
+                        <td className="px-3 md:px-4 py-2 md:py-3 text-sm" style={{ color: isOverdue ? '#DC2626' : '#475569', fontWeight: isOverdue ? 600 : 400 }}>
+                          {new Date(d.deadline).toLocaleDateString('id-ID')}
+                          {isOverdue && <span className="ml-1 text-xs">(Overdue)</span>}
+                        </td>
+                        <td className="px-3 md:px-4 py-2 md:py-3"><StatusBadge status={d.surat_status} /></td>
+                        <td className="px-3 md:px-4 py-2 md:py-3">
+                          <Link to={`/disposisi/${d.id}`} className="text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1 w-fit" style={{ backgroundColor: '#EFF6FF', color: '#1D4ED8' }}>
+                            <Eye size={13} />
+                            {d.surat_status === 'Didisposisi' ? 'Tindak Lanjut' : 'Lihat Detail'}
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4" style={{ borderTop: '1px solid #E2E8F0' }}>
                 <p className="text-sm" style={{ color: '#475569' }}>Halaman {page} dari {totalPages}</p>
                 <div className="flex gap-2">
                   <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="btn-secondary text-sm" style={{ padding: '6px 12px' }}>Sebelumnya</button>
