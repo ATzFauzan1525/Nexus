@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, Menu } from 'lucide-react';
 import api from '../lib/api';
 
-export default function Topbar() {
+export default function Topbar({ onMenuToggle }) {
   const { user, logout, socket, socketStatus } = useAuth();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -101,14 +101,20 @@ export default function Topbar() {
           <span className="text-sm font-medium">Koneksi tersambung kembali. Data telah diperbarui.</span>
         </div>
       )}
-      <header className="h-14 flex items-center justify-between px-6" style={{ backgroundColor: '#1D4ED8' }}>
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" className="h-8 w-8 object-contain" />
-          <span className="font-bold text-lg text-white">SiDis</span>
-          <span className="text-xs text-white" style={{ opacity: 0.8 }}>SMP Muhammadiyah 9 Yogyakarta</span>
+      <header className="h-14 flex items-center justify-between px-4 md:px-6" style={{ backgroundColor: '#1D4ED8' }}>
+        <div className="flex items-center gap-3">
+          <button onClick={onMenuToggle} className="p-1.5 rounded-md lg:hidden text-white hover:bg-white/20">
+            <Menu size={22} />
+          </button>
+          <img src="/logo.png" alt="Logo SMP9" className="h-8 w-8 md:h-10 md:w-10 object-contain rounded" />
+          <div className="hidden sm:block">
+            <span className="font-bold text-lg text-white block leading-tight">SiDis</span>
+            <span className="text-xs text-white block leading-tight" style={{ opacity: 0.8 }}>SMP Muhammadiyah 9 Yogyakarta</span>
+          </div>
+          <span className="font-bold text-lg text-white sm:hidden">SiDis</span>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-xs text-white">
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-white">
             <div className={`rounded-full ${currentStatus.pulse ? 'animate-pulse' : ''}`} style={{ width: '8px', height: '8px', backgroundColor: currentStatus.color }} />
             {currentStatus.label}
           </div>
@@ -122,7 +128,7 @@ export default function Topbar() {
               )}
             </button>
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-50" style={{ border: '1px solid #E2E8F0' }}>
+              <div className="absolute right-0 mt-2 w-72 md:w-80 bg-white rounded-lg shadow-lg z-50" style={{ border: '1px solid #E2E8F0' }}>
                 <div className="p-3 flex items-center justify-between" style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <h3 className="font-semibold text-sm">Notifikasi</h3>
                   {unreadCount > 0 && (
@@ -152,8 +158,8 @@ export default function Topbar() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-white">{user?.nama_lengkap}</p>
               <p className="text-xs text-white" style={{ opacity: 0.8 }}>{user?.role?.replace('_', ' ')}</p>
             </div>

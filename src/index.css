@@ -114,3 +114,25 @@ h4 { font-size: 16px; line-height: 1.4; font-weight: 600; color: var(--color-neu
   body { background: white; }
   .card { box-shadow: none; border: 1px solid #E2E8F0; }
 }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  h1 { font-size: 22px; }
+  h2 { font-size: 18px; }
+  h3 { font-size: 16px; }
+
+  .card { padding: 16px; }
+
+  /* Responsive table */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-responsive table {
+    min-width: 600px;
+  }
+
+  /* Mobile grid */
+  .grid-cols-2 { grid-template-columns: 1fr; }
+  .grid-cols-3 { grid-template-columns: 1fr; }
+}

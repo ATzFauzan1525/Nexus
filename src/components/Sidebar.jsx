@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Mail, FileText, Users, ClipboardList,
-  ChevronDown, ChevronRight, PenLine, Inbox, History,
+  ChevronDown, ChevronRight, PenLine, Inbox, History, X,
 } from 'lucide-react';
 
 const menuConfig = {
@@ -46,7 +46,7 @@ const menuConfig = {
   ],
 };
 
-function MenuItem({ item, pathname }) {
+function MenuItem({ item, pathname, onClose }) {
   const [open, setOpen] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
   const Icon = item.icon;
@@ -56,6 +56,7 @@ function MenuItem({ item, pathname }) {
     return (
       <Link
         to={item.to}
+        onClick={onClose}
         className="flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors no-underline"
         style={{
           backgroundColor: isActive ? '#1D4ED8' : undefined,
@@ -95,6 +96,7 @@ function MenuItem({ item, pathname }) {
               <Link
                 key={child.to}
                 to={child.to}
+                onClick={onClose}
                 className="flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors no-underline"
                 style={{
                   backgroundColor: isActive ? '#1D4ED8' : undefined,
@@ -112,18 +114,43 @@ function MenuItem({ item, pathname }) {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
   const items = menuConfig[user?.role] || [];
 
   return (
-    <aside className="w-60 min-h-screen flex-shrink-0" style={{ backgroundColor: '#F1F5F9', borderRight: '1px solid #E2E8F0', width: '240px' }}>
-      <nav className="p-4 space-y-1">
-        {items.map((item, idx) => (
-          <MenuItem key={idx} item={item} pathname={pathname} />
-        ))}
-      </nav>
-    </aside>
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:block w-60 min-h-screen flex-shrink-0" style={{ backgroundColor: '#F1F5F9', borderRight: '1px solid #E2E8F0', width: '240px' }}>
+        <nav className="p-4 space-y-1">
+          {items.map((item, idx) => (
+            <MenuItem key={idx} item={item} pathname={pathname} onClose={onClose} />
+          ))}
+        </nav>
+      </aside>
+
+      {/* Mobile sidebar */}
+      <aside
+        className="fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out lg:hidden"
+        style={{
+          backgroundColor: '#F1F5F9',
+          borderRight: '1px solid #E2E8F0',
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+        }}
+      >
+        <div className="flex items-center justify-between p-4" style={{ borderBottom: '1px solid #E2E8F0' }}>
+          <span className="font-bold text-lg" style={{ color: '#0F172A' }}>Menu</span>
+          <button onClick={onClose} className="p-1 rounded hover:bg-neutral-200">
+            <X size={20} />
+          </button>
+        </div>
+        <nav className="p-4 space-y-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>
+          {items.map((item, idx) => (
+            <MenuItem key={idx} item={item} pathname={pathname} onClose={onClose} />
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }
