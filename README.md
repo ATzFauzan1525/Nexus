@@ -39,6 +39,7 @@ SiDis/
 │   ├── information_architecture.md
 │   ├── design_system.md
 │   ├── data_model.md
+│   ├── api_specification.md
 │   ├── analisis_kebutuhan/    # Dokumen Analisis Kebutuhan
 │   ├── data_observasi/        # Data wawancara & observasi
 │   ├── user_flows/            # 16 use case flows
@@ -176,6 +177,26 @@ Buka `http://localhost:3000`
 3. Di window B: buat disposisi → window A (atau Guru/Staf) menerima notifikasi realtime
 4. Buka window C: akses `/lacak` tanpa login, masukkan nomor surat → lihat status realtime
 
+## API Specification
+
+Base URL: `https://sidis-production.up.railway.app/api`
+
+| Grup | Endpoint | Auth | Role |
+|------|----------|------|------|
+| Auth | `POST /auth/login`, `GET /auth/profile` | Tidak/Ya | Public/Semua |
+| Surat | `GET /surat`, `GET /surat/:id`, `POST /surat`, `GET /surat/stats`, `GET /surat/posisi`, `GET /surat/:id/download` | Ya | Scoped per role |
+| Disposisi | `GET /disposisi`, `GET /disposisi/:id`, `POST /disposisi` | Ya | Kepala/Guru/Wakasek |
+| Status | `PUT /surat/:id/status` | Ya | Guru/Staf |
+| Notifikasi | `GET /notifikasi`, `GET /notifikasi/unread-count`, `PUT /notifikasi/:id/read`, `PUT /notifikasi/read-all` | Ya | Semua |
+| Pengguna | `GET /pengguna`, `GET /pengguna/:id`, `GET /pengguna/guru-staf`, `POST /pengguna`, `PUT /pengguna/:id`, `PUT /pengguna/:id/password`, `DELETE /pengguna/:id` | Ya | Admin TU |
+| Komentar | `GET /surat/:suratId/komentar`, `POST /surat/:suratId/komentar`, `DELETE /surat/:suratId/komentar/:id` | Ya | Semua |
+| Audit Log | `GET /audit-log` | Ya | Admin TU + Kepala |
+| Laporan | `POST /laporan/generate`, `GET /laporan/pdf` | Ya | Admin TU |
+| Public | `GET /public/lacak` | Tidak | Public |
+| Health | `GET /health` | Tidak | Public |
+
+**Total: 31 endpoints** — Lihat `docs/api_specification.md` untuk detail request/response lengkap.
+
 ## Source of Truth
 
 Semua detail konfigurasi, spesifikasi, dan business rules ada di `docs/`:
@@ -184,7 +205,9 @@ Semua detail konfigurasi, spesifikasi, dan business rules ada di `docs/`:
 - `docs/information_architecture.md` — Routes, layout, WebSocket channels
 - `docs/design_system.md` — Colors, typography, components
 - `docs/data_model.md` — Database schema, ERD, indexes
+- `docs/api_specification.md` — 31 API endpoints, request/response, role access
 - `docs/analisis_kebutuhan/` — Dokumen Analisis Kebutuhan (Fase 1)
+- `docs/analisis_kebutuhan/class_diagram.md` — Class diagram 7 class + relasi
 - `docs/data_observasi/` — Data wawancara, transkrip, bukti foto
 - `docs/user_flows/` — 16 use case flows
 - `docs/system_logics/` — API contracts, sequence diagrams, data flow
