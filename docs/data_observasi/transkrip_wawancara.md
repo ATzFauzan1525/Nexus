@@ -253,4 +253,4 @@
 
 ## Lampiran
 
-![Bukti Wawancara](bukti-wawancara.jpg)
+![Bukti Wawancara](bukti-wawancara.jpeg)
