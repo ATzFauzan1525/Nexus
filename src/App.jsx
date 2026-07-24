@@ -54,7 +54,7 @@ export default function App() {
       <Route path="/pengguna" element={<ProtectedRoute roles={['ADMIN_TU']}><PenggunaPage /></ProtectedRoute>} />
       <Route path="/pengguna/tambah" element={<ProtectedRoute roles={['ADMIN_TU']}><PenggunaTambahPage /></ProtectedRoute>} />
       <Route path="/pengguna/:id/edit" element={<ProtectedRoute roles={['ADMIN_TU']}><PenggunaEditPage /></ProtectedRoute>} />
-      <Route path="/laporan" element={<ProtectedRoute roles={['ADMIN_TU', 'KEPALA_SEKOLAH']}><LaporanPage /></ProtectedRoute>} />
+      <Route path="/laporan" element={<ProtectedRoute roles={['ADMIN_TU']}><LaporanPage /></ProtectedRoute>} />
       <Route path="/audit-log" element={<ProtectedRoute roles={['ADMIN_TU', 'KEPALA_SEKOLAH']}><AuditLogPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
