@@ -105,6 +105,7 @@ Buka `http://localhost:3000` — API, Frontend (Vite dev server), dan Socket.io 
 ## URL
 
 - **Aplikasi:** https://sidis-nexus.vercel.app
+- **Backend API:** https://sidis-api.onrender.com (deploy via `render.yaml`)
 - **Repository:** https://github.com/ATzFauzan1525/Nexus
 
 ## Login
@@ -179,7 +180,7 @@ Buka `http://localhost:3000`
 
 ## API Specification
 
-Base URL: `https://sidis-production.up.railway.app/api`
+Base URL: `https://sidis-api.onrender.com/api`
 
 | Grup | Endpoint | Auth | Role |
 |------|----------|------|------|
@@ -211,3 +212,24 @@ Semua detail konfigurasi, spesifikasi, dan business rules ada di `docs/`:
 - `docs/data_observasi/` — Data wawancara, transkrip, bukti foto
 - `docs/user_flows/` — 16 use case flows
 - `docs/system_logics/` — API contracts, sequence diagrams, data flow
+
+## Troubleshooting Login Gagal Setelah Deploy
+
+Backend (Express) tidak ikut ter-deploy di Vercel — Vercel hanya untuk frontend. Semua request `/api/*` di-proxy ke backend (Render saat ini).
+
+```bash
+# Cek kesehatan deployment (backend hidup? proxy aktif? login jalan?)
+npm run check:deploy
+```
+
+Penyebab umum:
+
+| Gejala | Penyebab | Solusi |
+|--------|----------|--------|
+| "Application not found" / "Failed to fetch" | Backend mati (mis. trial Railway habis, service dihapus) | Deploy ulang backend. Saat ini pakai Render: `New → Blueprint` dari repo ini (`render.yaml`). atau upgrade plan hosting |
+| Blok CORS di console browser | `CORS_ORIGIN` tidak diset di hosting backend | Set `CORS_ORIGIN=https://sidis-nexus.vercel.app` lalu restart |
+| Login balas 500 "Terjadi kesalahan server" | `JWT_SECRET` / `DATABASE_URL` kosong di hosting backend | Set env lalu restart |
+| `/api/health` mengembalikan HTML | Proxy di `vercel.json` belum ke-deploy / URL backend salah | Update `destination` di `vercel.json`, push, redeploy Vercel |
+| URL backend berubah | Config lama masih menunjuk domain lama | Update `destination` di `vercel.json` (dan `VITE_API_URL` jika dipakai), redeploy |
+
+> **Best practice:** biarkan `VITE_API_URL` KOSONG di Vercel sehingga frontend memakai path relatif `/api` dan semua request melewati proxy `vercel.json` (sekalian bebas masalah CORS). Socket.io otomatis jatuh ke long-polling bila WebSocket terblokir proxy.

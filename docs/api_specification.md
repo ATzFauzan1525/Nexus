@@ -2,7 +2,7 @@
 
 **Project:** SiDis — Sistem Informasi Disposisi dan Pelacakan Surat Digital
 
-**Base URL:** `https://sidis-production.up.railway.app/api`
+**Base URL:** `https://sidis-api.onrender.com/api`
 
 **Autentikasi:** JWT Bearer Token — kirim header `Authorization: Bearer <token>`
 

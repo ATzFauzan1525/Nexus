@@ -1,0 +1,25 @@
+# Render Blueprint — deploy sekali tekan via https://render.com (New → Blueprint)
+# Backend Express + Socket.io untuk SiDis.
+# Setelah deploy, URL API menjadi: https://sidis-api.onrender.com/api
+services:
+  - type: web
+    name: sidis-api
+    runtime: node
+    repo: https://github.com/ATzFauzan1525/Nexus
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: CORS_ORIGIN
+        value: https://sidis-nexus.vercel.app
+      # Isi manual di dashboard Render (jangan commit nilai asli):
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false

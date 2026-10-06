@@ -6,9 +6,21 @@ export const api = {
     const headers = { 'Content-Type': 'application/json', ...options.headers };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    let response;
+    try {
+      response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    } catch (err) {
+      // Fetch gagal total: backend mati, domain salah, atau diblokir CORS.
+      throw new Error('Tidak dapat terhubung ke server. Layanan backend mungkin sedang mati — coba lagi beberapa saat.');
+    }
 
-    const data = await response.json();
+    const raw = await response.text();
+    let data = null;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      // Bukan JSON — biasanya HTML (kena rewrite SPA) karena URL API salah.
+    }
 
     if (response.status === 401) {
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
@@ -18,7 +30,14 @@ export const api = {
       }
     }
 
-    if (!response.ok) throw new Error(data.message || 'Terjadi kesalahan');
+    if (!response.ok) {
+      throw new Error((data && data.message) || `Permintaan gagal (HTTP ${response.status})`);
+    }
+
+    if (data === null) {
+      throw new Error('Server mengirim respons bukan JSON. URL API kemungkinan salah atau endpoint tidak ditemukan.');
+    }
+
     return data;
   },
 

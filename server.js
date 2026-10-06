@@ -12,6 +12,9 @@ const PORT = parseInt(process.env.PORT, 10) || 3000;
 
 const apiApp = express();
 const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000'];
+if (process.env.NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
+  console.warn('[CORS] CORS_ORIGIN belum di-set. Frontend dari domain lain akan DIBLOKIR browser saat login. Set CORS_ORIGIN=https://domain-frontend-anda');
+}
 apiApp.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -79,6 +82,10 @@ const startServer = async () => {
       fs.createReadStream(filePath).pipe(res);
     } else {
       const indexPath = path.join(__dirname, 'dist', 'index.html');
+      if (!fs.existsSync(indexPath)) {
+        // Backend di-host terpisah (Render/Vercel) tanpa build frontend di folder ini.
+        return res.status(404).json({ message: 'Frontend tidak di-serve di server ini. Gunakan https://sidis-nexus.vercel.app' });
+      }
       res.setHeader('Content-Type', 'text/html');
       fs.createReadStream(indexPath).pipe(res);
     }

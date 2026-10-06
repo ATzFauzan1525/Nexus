@@ -9,7 +9,8 @@
     "build": "vite build",
     "start": "NODE_ENV=production node server.js",
     "db:init": "node server/config/db-init.js",
-    "db:migrate": "node server/config/db-migrate.js"
+    "db:migrate": "node server/config/db-migrate.js",
+    "check:deploy": "node scripts/check-deploy.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
